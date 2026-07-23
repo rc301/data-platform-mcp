@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from types import SimpleNamespace
 
 from dataplatform.glue import diagnose
@@ -18,8 +18,8 @@ class _Glue:
         return {
             "JobRun": {
                 "JobRunState": self._state,
-                "StartedOn": datetime(2026, 7, 22, 12, 0, tzinfo=timezone.utc),
-                "CompletedOn": datetime(2026, 7, 22, 12, 5, tzinfo=timezone.utc),
+                "StartedOn": datetime(2026, 7, 22, 12, 0, tzinfo=UTC),
+                "CompletedOn": datetime(2026, 7, 22, 12, 5, tzinfo=UTC),
                 "ExecutionTime": 300,
                 "WorkerType": "G.1X",
                 "NumberOfWorkers": 2,
@@ -38,7 +38,7 @@ def _session(glue, monkeypatch):
 
 
 def test_fmt_brt_converts_utc_to_minus_three():
-    dt = datetime(2026, 7, 22, 12, 0, tzinfo=timezone.utc)
+    dt = datetime(2026, 7, 22, 12, 0, tzinfo=UTC)
     assert fmt_brt(dt) == "2026-07-22 09:00:00 BRT"
 
 

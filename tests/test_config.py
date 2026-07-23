@@ -1,6 +1,6 @@
 import pytest
 
-from dataplatform.config import Session, SandboxViolation, ensure_sandbox, sandbox_account_ids
+from dataplatform.config import SandboxViolation, Session, ensure_sandbox, sandbox_account_ids
 
 
 class _FakeBoto:

@@ -4,7 +4,7 @@ engineer formats them in BRT through here, so the convention lives in one place.
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta, timezone
 
 # Brazil has had no DST since 2019, so a fixed -03:00 offset is correct.
 BRT = timezone(timedelta(hours=-3), "BRT")
@@ -15,5 +15,5 @@ def fmt_brt(value: datetime | None) -> str | None:
     if value is None:
         return None
     if value.tzinfo is None:
-        value = value.replace(tzinfo=timezone.utc)
+        value = value.replace(tzinfo=UTC)
     return value.astimezone(BRT).strftime("%Y-%m-%d %H:%M:%S %Z")

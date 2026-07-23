@@ -1,6 +1,5 @@
+from datetime import UTC, datetime
 from types import SimpleNamespace
-
-from datetime import datetime, timezone
 
 from dataplatform.glue.jobs import get_job, list_job_runs, list_jobs
 
@@ -30,7 +29,7 @@ class _Glue:
                 {
                     "Id": "jr_1",
                     "JobRunState": "SUCCEEDED",
-                    "StartedOn": datetime(2026, 7, 22, 12, 0, tzinfo=timezone.utc),
+                    "StartedOn": datetime(2026, 7, 22, 12, 0, tzinfo=UTC),
                     "ExecutionTime": 120,
                 }
             ]

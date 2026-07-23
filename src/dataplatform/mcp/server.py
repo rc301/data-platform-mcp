@@ -88,7 +88,9 @@ def diagnose_job_run(job_name: str, run_id: str, profile: str | None = None) -> 
 
 
 @mcp.tool()
-def list_job_runs(job_name: str, limit: int = 5, profile: str | None = None) -> list[dict[str, Any]]:
+def list_job_runs(
+    job_name: str, limit: int = 5, profile: str | None = None
+) -> list[dict[str, Any]]:
     """List a job's most recent runs (id, state, start in BRT, duration).
 
     Reusable primitive for any command that needs run history: checking a
