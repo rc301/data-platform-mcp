@@ -24,16 +24,9 @@ delegar.
 
 | Comando | Skill | Compõe | Subagente |
 |---|---|---|---|
-| `/validar-job <job>` | `validar-job` | inspecionar → replicar na sandbox → rodar e validar | `job-validator` |
 | `/analyze-job-run <job> <run>` | `analyze-job-run` | resumo do run → excerto de erro → schema/partição | `job-diagnoser` |
 | `/code-review [job\|base]` | `code-review` | diff → contraste com produção/histórico → rubrica de risco | — |
 | `/testes-unitarios [path]` | `testes-unitarios` | roda a suíte de testes puros do repo | — |
-
-### `validar-job`
-Exercita uma alteração de ponta a ponta na conta sandbox antes do PR: inspeciona
-o job de produção, replica para a sandbox, roda um run de validação e reporta.
-Escrita só na sandbox (guardada). Tem o subagente `job-validator` para isolar o
-trabalho barulhento.
 
 ### `analyze-job-run`
 Diagnostica um run que falhou. Começa em `diagnose_job_run` (resumo + histórico +

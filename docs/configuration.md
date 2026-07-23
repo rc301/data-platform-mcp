@@ -24,7 +24,8 @@ como o humano que o roda — não há service account. Os parâmetros das tools 
 cobrem as três contas:
 
 - **conta do job** → `AWS_PROFILE` ambiente (default).
-- **conta sandbox** → parâmetro `sandbox_profile` das tools de escrita.
+- **conta sandbox** → parâmetro `sandbox_profile` das funções de escrita da lib
+  (guardadas; não expostas como tools do MCP neste build).
 - **conta de dados** → parâmetro `data_profile` das tools de tabela.
 
 `resolve_session(profile=...)` constrói a sessão boto3 e resolve o **account id

@@ -71,9 +71,9 @@ re-rodar para pegar templates novos (use `--force` para sobrescrever). Ele grava
 ```
 CLAUDE.md                     # contexto e regras do repo para o Claude Code
 .mcp.json                     # registra o servidor MCP 'data-platform'
-.claude/agents/               # subagentes (job-validator, job-diagnoser)
-.claude/skills/               # playbooks (validar-job, analyze-job-run, ...)
-.claude/commands/             # slash commands (/validar-job, ...)
+.claude/agents/               # subagentes (job-diagnoser)
+.claude/skills/               # playbooks (analyze-job-run, code-review, ...)
+.claude/commands/             # slash commands (/analyze-job-run, ...)
 ```
 
 Detalhes de cada comando da CLI em [cli.md](cli.md).
@@ -84,7 +84,6 @@ Abra o Claude Code na raiz do repo. O `.mcp.json` gerado sobe o servidor MCP com
 `data-platform-mcp serve`, e o `CLAUDE.md` carrega o contexto do repo. A partir
 daí você usa o catálogo de comandos ([commands.md](commands.md)):
 
-- `/validar-job <job>` — inspeciona → replica na sandbox → roda e valida.
 - `/analyze-job-run <job> <run>` — diagnostica um run que falhou.
 - `/code-review [job|base]` — parecer de risco antes de subir para produção.
 - `/testes-unitarios [path]` — roda a suíte de testes puros do repo.

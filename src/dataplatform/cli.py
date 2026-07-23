@@ -29,9 +29,6 @@ from pathlib import Path
 _FILES: tuple[tuple[str, str], ...] = (
     ("CLAUDE.md", "CLAUDE.md"),
     ("mcp.json", ".mcp.json"),
-    ("dot_claude/agents/job-validator.md", ".claude/agents/job-validator.md"),
-    ("dot_claude/skills/validar-job/SKILL.md", ".claude/skills/validar-job/SKILL.md"),
-    ("dot_claude/commands/validar-job.md", ".claude/commands/validar-job.md"),
     ("dot_claude/agents/job-diagnoser.md", ".claude/agents/job-diagnoser.md"),
     (
         "dot_claude/skills/analyze-job-run/SKILL.md",
@@ -68,11 +65,8 @@ _CLI_COMMANDS: tuple[tuple[str, str], ...] = (
 )
 
 _SCAFFOLDED_ASSETS: tuple[tuple[str, str, str], ...] = (
-    ("skill", "validar-job", "Playbook do fluxo inspecionar→replicar→validar."),
     ("skill", "analyze-job-run", "Playbook de diagnóstico de run falhado."),
-    ("agent", "job-validator", "Subagente que valida um job de ponta a ponta."),
     ("agent", "job-diagnoser", "Subagente que investiga e diagnostica um run."),
-    ("command", "/validar-job <job>", "Dispara o fluxo de validação manualmente."),
     ("command", "/analyze-job-run <job> <run>", "Dispara o diagnóstico de falha."),
     ("skill", "testes-unitarios", "Casca: roda a suíte de testes (troque pelo padrão da empresa)."),
     ("command", "/testes-unitarios [path]", "Roda os testes unitários do repo."),

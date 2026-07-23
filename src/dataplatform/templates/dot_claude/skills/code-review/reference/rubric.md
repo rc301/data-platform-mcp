@@ -23,8 +23,8 @@ olhar" — complemente com os padrões da sua empresa. Severidades: **bloqueador
 | Worker/DPU muito acima do histórico do job | atenção | Custo; confronte com `list_job_runs` |
 | `Timeout` incompatível com a duração típica | atenção | Timeout curto derruba run bom; longo mascara travada |
 | `--job-bookmark-option` coerente com a intenção | atenção | Reprocessa ou pula dado sem querer |
-| `Connections` que só existem em produção | atenção | `validar-job` na sandbox vai falhar sem override |
-| Mudança de `GlueVersion` | bloqueador | Pode quebrar API do Spark; exige validar-job |
+| `Connections` que só existem em produção | atenção | Um teste em sandbox falha sem override |
+| Mudança de `GlueVersion` | bloqueador | Pode quebrar API do Spark; exige teste em sandbox |
 
 ## Dados / origem (se o diff tocar entrada)
 
@@ -36,5 +36,5 @@ olhar" — complemente com os padrões da sua empresa. Severidades: **bloqueador
 ## Cruzando com produção
 
 - O job vinha **estável** (`list_job_runs`)? Mudança em job frágil pede mais rigor.
-- A mudança foi **exercitada** na sandbox (`validar-job`) antes deste review? Se
-  não, o checklist "antes de subir" deve exigir.
+- A mudança foi **exercitada** numa conta sandbox antes deste review? Se não, o
+  checklist "antes de subir" deve exigir.

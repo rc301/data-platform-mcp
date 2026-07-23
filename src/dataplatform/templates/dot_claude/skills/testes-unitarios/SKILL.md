@@ -3,7 +3,8 @@ name: testes-unitarios
 description: >-
   Roda os testes unitários deste repositório de Glue jobs. Use quando o usuário
   pedir para rodar/validar os testes (ex.: "roda os testes", "testa o transform")
-  ou disparar /testes-unitarios. Não use para rodar o job na AWS — isso é validar-job.
+  ou disparar /testes-unitarios. Não use para investigar falha de run na AWS —
+  isso é analyze-job-run.
 ---
 
 # Rodar testes unitários

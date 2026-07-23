@@ -7,13 +7,13 @@ def test_init_creates_files(tmp_path: Path):
     assert init(tmp_path) == 0
     assert (tmp_path / "CLAUDE.md").exists()
     assert (tmp_path / ".mcp.json").exists()
-    assert (tmp_path / ".claude/agents/job-validator.md").exists()
-    assert (tmp_path / ".claude/skills/validar-job/SKILL.md").exists()
-    assert (tmp_path / ".claude/commands/validar-job.md").exists()
     assert (tmp_path / ".claude/skills/analyze-job-run/SKILL.md").exists()
     assert (tmp_path / ".claude/skills/analyze-job-run/reference/glue-errors.md").exists()
     assert (tmp_path / ".claude/agents/job-diagnoser.md").exists()
     assert (tmp_path / ".claude/commands/analyze-job-run.md").exists()
+    # validar-job (skill/command) and the job-validator agent were removed.
+    assert not (tmp_path / ".claude/skills/validar-job").exists()
+    assert not (tmp_path / ".claude/agents/job-validator.md").exists()
 
 
 def test_list_runs_without_mcp_extra(capsys):
@@ -23,7 +23,8 @@ def test_list_runs_without_mcp_extra(capsys):
     out = capsys.readouterr().out
     assert "data-platform-mcp init" in out
     assert "data-platform-mcp serve" in out
-    assert "validar-job" in out
+    assert "analyze-job-run" in out
+    assert "validar-job" not in out
 
 
 def test_init_is_idempotent_and_preserves_edits(tmp_path: Path):

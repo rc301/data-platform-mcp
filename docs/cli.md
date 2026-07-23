@@ -33,7 +33,7 @@ Saída típica:
 ```
   criado   CLAUDE.md
   criado   .mcp.json
-  criado   .claude/skills/validar-job/SKILL.md
+  criado   .claude/skills/analyze-job-run/SKILL.md
   mantido  CLAUDE.md (já existe; use --force para sobrescrever)
 ```
 

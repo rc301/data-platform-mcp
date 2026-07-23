@@ -13,9 +13,12 @@ longa duração embutida na ferramenta. Modelo de profiles em
 
 ## 2. Escrita só em sandbox — e fail-closed
 
-Só duas tools escrevem na AWS: `replicate_job_to_sandbox` e `run_sandbox_job`.
-Ambas chamam `ensure_sandbox(session)` **antes** de qualquer mutação. A guarda
-(em [`config.py`](../src/dataplatform/config.py)):
+**As tools do MCP são somente-leitura** — nenhuma escreve na AWS. As funções de
+escrita (`glue.replicate_to_sandbox`, `glue.start_validation_run`) continuam na
+biblioteca como substrato reutilizável, mas não são expostas como tools neste
+build. Quando forem chamadas (por lib ou por um futuro caminho de code-execution),
+passam pela mesma guarda: chamam `ensure_sandbox(session)` **antes** de qualquer
+mutação (em [`config.py`](../src/dataplatform/config.py)):
 
 ```python
 def ensure_sandbox(session: Session) -> None:
@@ -36,8 +39,7 @@ Duas propriedades importantes:
   guarda passando um nome de conta.
 
 A regra de negócio no `CLAUDE.md` reforça: nunca contornar isso com chamadas `aws`
-diretas; validação de mudança passa pela sandbox; falha em produção é
-investigação read-only, não conserto às cegas.
+diretas; falha em produção é investigação read-only, não conserto às cegas.
 
 ## 3. Higiene de segredos
 
@@ -52,9 +54,9 @@ investigação read-only, não conserto às cegas.
 
 | Operação | Conta | Acesso |
 |---|---|---|
-| Inspecionar/listar jobs, diagnosticar runs | conta do job (dev) | read |
-| Replicar / rodar validação | conta **sandbox** | **write, guardada** |
-| Inspecionar schema/partição de origem | conta de dados (terceira) | read-only |
+| Inspecionar/listar jobs, diagnosticar runs | conta do job (dev) | read (via MCP) |
+| Inspecionar schema/partição de origem | conta de dados (terceira) | read-only (via MCP) |
+| Replicar / rodar validação (funções de lib) | conta **sandbox** | **write, guardada** (não exposta no MCP) |
 
 Leituras na conta de dados usam um `data_profile` próprio e são sempre
 read-only. Isso evita que uma sessão de diagnóstico toque, mesmo por engano, na

@@ -3,8 +3,7 @@ name: code-review
 description: >-
   Revisa a alteração de um Glue job antes de subir para produção. Use quando o
   usuário for abrir/mergear um PR de um job em jobs/<nome>/ ou disparar
-  /code-review. Não use para investigar falha de run (isso é analyze-job-run) nem
-  para rodar o job (isso é validar-job).
+  /code-review. Não use para investigar falha de run (isso é analyze-job-run).
 ---
 
 # Code review de um Glue job (pré-produção)
@@ -22,7 +21,6 @@ conhecimento estático e está em `reference/rubric.md`. Carregue-a e siga-a.
 ## Quando NÃO usar
 
 - O run já falhou e você quer a causa → use `analyze-job-run`.
-- Só quer exercitar a mudança na sandbox → use `validar-job`.
 
 ## Passos
 
@@ -46,8 +44,8 @@ conhecimento estático e está em `reference/rubric.md`. Carregue-a e siga-a.
 - **Veredito:** aprovar / aprovar com ressalvas / bloquear.
 - **Achados**, cada um com: severidade (bloqueador / atenção / nit), arquivo\:linha,
   o problema em uma frase e a correção sugerida (para o autor aplicar).
-- **Antes de subir:** checklist curto do que falta (ex.: rodar `validar-job` na
-  sandbox, ajustar timeout).
+- **Antes de subir:** checklist curto do que falta (ex.: exercitar a mudança
+  numa conta sandbox, ajustar timeout, rodar os testes).
 
 ## Regras
 

@@ -17,7 +17,6 @@ MCP. Escolha o comando pela intenção do usuário.
 
 | Quando o usuário quer… | Use a skill / comando | Encapsula |
 |---|---|---|
-| Validar uma alteração antes do PR | **`validar-job`** (`/validar-job`) | inspecionar → replicar na sandbox → rodar e validar |
 | Entender por que um run falhou | **`analyze-job-run`** (`/analyze-job-run`) | resumo do run → excerto de erro → schema/partição da origem |
 | Revisar uma mudança antes de subir p/ produção | **`code-review`** (`/code-review`) | diff → contraste com produção/histórico → rubrica de risco |
 | Rodar os testes unitários | **`testes-unitarios`** (`/testes-unitarios`) | suíte de testes puros do repo |
@@ -28,9 +27,9 @@ mapa de reuso em `docs/architecture.md` (no repo do toolkit).
 
 ## Como trabalhar
 
-- **Nunca teste em produção.** Toda validação de mudança passa pela conta
-  sandbox — é o que a skill `validar-job` faz. Só abra PR para `develop` depois
-  de validar.
+- **Nunca altere produção às cegas.** Antes de subir, use `/code-review` para o
+  parecer de risco e `/testes-unitarios` para as transformações puras. As tools
+  do MCP são somente-leitura — não faça mudanças na AWS via `aws` na mão.
 - **Leituras em contas de dados terceiras** (schema/partição de tabela origem)
   usam um `data_profile` próprio e são sempre read-only.
 - **Falha em produção é investigação, não conserto às cegas**: diagnostique com
@@ -39,15 +38,14 @@ mapa de reuso em `docs/architecture.md` (no repo do toolkit).
 
 ## Ferramentas (MCP)
 
-O servidor MCP **`data-platform`** (configurado em `.mcp.json`) expõe as tools
-para inspecionar/replicar/rodar/logar jobs e inspecionar tabelas. Prefira essas
-tools a chamar `aws` na mão — elas já aplicam as travas de segurança.
+O servidor MCP **`data-platform`** (configurado em `.mcp.json`) expõe tools
+somente-leitura para inspecionar e diagnosticar jobs/runs e inspecionar tabelas
+de origem. Prefira essas tools a chamar `aws` na mão.
 
 ## Regras de segurança — inegociáveis
 
-- **Escrita só em sandbox.** As tools de escrita (`replicate_job_to_sandbox`,
-  `run_sandbox_job`) são recusadas fora das contas em
-  `DATAPLATFORM_SANDBOX_ACCOUNTS`. Nunca contorne isso com chamadas `aws` diretas.
+- **MCP é somente-leitura.** Nenhuma tool escreve na AWS. Não contorne isso com
+  chamadas `aws` diretas para alterar jobs.
 - **Credencial é a do dev** (`AWS_PROFILE`). Não há service account.
 - **Nunca commite** credenciais, ARNs de conta ou IDs de conta reais. `job.json`
   usa placeholders; valores reais ficam em variáveis de ambiente locais.
@@ -56,5 +54,4 @@ tools a chamar `aws` na mão — elas já aplicam as travas de segurança.
 
 - Script de job em `jobs/<nome>/script.py`, ponto de entrada compatível com
   Glue (lê `getResolvedOptions`).
-- Nome do job na sandbox: sufixo `-sandbox` sobre o nome de produção.
 - Testes de transformação pura em `tests/`, sem depender de AWS.

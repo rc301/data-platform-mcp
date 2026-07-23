@@ -3,9 +3,9 @@
 A small, developer-facing toolkit for working with AWS Glue data jobs, plus an
 MCP server that exposes it to AI agents (e.g. Claude Code).
 
-It covers one workflow end to end:
-
-> **inspect an existing job → replicate it into a sandbox → validate it**
+It gives an agent a **read-only** window onto AWS Glue: inspect job configs,
+diagnose failed runs, and check source tables — the substrate for commands like
+failure diagnosis and pre-production code review.
 
 The MCP server is a **thin shell**. All logic lives in the library
 (`dataplatform.glue`); the server only wires those functions to tools and
@@ -18,8 +18,10 @@ never imported by a Glue job at runtime.
   framework conventions) stays in docs, not in tools.
 - **Developer credentials only.** Everything uses the ambient `AWS_PROFILE` —
   no service accounts.
-- **Writes are sandbox-only.** Mutating operations are refused unless the
-  target account is listed in `DATAPLATFORM_SANDBOX_ACCOUNTS` (fails closed).
+- **The MCP surface is read-only.** The library keeps guarded, sandbox-only
+  write functions (`dataplatform.glue.replicate_to_sandbox` etc., fail-closed
+  via `DATAPLATFORM_SANDBOX_ACCOUNTS`), but they are **not** exposed as MCP
+  tools in this build.
 
 ## Install
 
@@ -38,6 +40,7 @@ pip install -e ".[mcp,dev]"
 
 ```bash
 export AWS_PROFILE=your-dev-profile
+# only needed by the library's (unexposed) write functions; the MCP tools are read-only
 export DATAPLATFORM_SANDBOX_ACCOUNTS=111122223333,444455556666
 ```
 
@@ -48,10 +51,6 @@ export DATAPLATFORM_SANDBOX_ACCOUNTS=111122223333,444455556666
 | `get_server_info` | read | Library version + resolved AWS identity |
 | `list_glue_jobs` | read | Discover job names |
 | `inspect_glue_job` | read | Full portable config of one job |
-| `replicate_job_to_sandbox` | write (guarded) | Copy a job into a sandbox account |
-| `validate_sandbox_job` | read | Static validation of a replicated job |
-| `run_sandbox_job` | write (guarded) | Start a short validation run |
-| `get_sandbox_run_status` | read | Poll a validation run |
 | `list_job_runs` | read | Recent run history (reusable primitive) |
 | `diagnose_job_run` | read | One-call diagnosis of a run (summary + history + error excerpt) |
 | `inspect_table` | read (data acct) | Source table schema + Iceberg detection |
@@ -112,7 +111,7 @@ Add to your MCP config (`~/.claude/mcp.json` or project `.mcp.json`):
 ```
 
 Then in a session: *"list glue jobs matching orders, inspect the ETL one, and
-replicate it to my sandbox profile."*
+diagnose its last failed run."*
 
 ## Documentation
 

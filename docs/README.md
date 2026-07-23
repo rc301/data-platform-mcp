@@ -1,9 +1,10 @@
 # Documentação — data-platform-mcp
 
 Toolkit de desenvolvedor para trabalhar com AWS Glue jobs, mais um servidor MCP
-que expõe esse toolkit a agentes de IA (Claude Code). Cobre um fluxo de ponta a
-ponta — **inspecionar um job → replicar na sandbox → validar** — e um catálogo
-de comandos que cresce por composição, sem inchar a camada de tools.
+que expõe esse toolkit a agentes de IA (Claude Code). Dá ao agente uma janela
+**somente-leitura** sobre o Glue — inspecionar configs, diagnosticar runs que
+falharam e checar tabelas de origem — e um catálogo de comandos que cresce por
+composição, sem inchar a camada de tools.
 
 ## Mapa da documentação
 
@@ -31,5 +32,6 @@ de comandos que cresce por composição, sem inchar a camada de tools.
 
 A biblioteca (`dataplatform.glue.*`) tem toda a lógica; o servidor MCP é só uma
 casca que liga essas funções a tools; comandos e skills **compõem** essas tools.
-Escrita só acontece em contas sandbox declaradas, e sempre com a credencial do
-próprio desenvolvedor.
+As tools do MCP são somente-leitura e sempre usam a credencial do próprio
+desenvolvedor. As funções de escrita (guardadas, sandbox-only) continuam na lib,
+mas não são expostas como tools — ver [security.md](security.md).
