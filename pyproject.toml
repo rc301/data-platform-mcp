@@ -36,8 +36,11 @@ dev = [
     "boto3-stubs[glue,sts]>=1.34",
 ]
 
+# Single console command, named like the package. Subcommands: init / list /
+# serve. `serve` starts the MCP server (the same entry .mcp.json invokes). The
+# short `data-platform` alias points at the same dispatcher.
 [project.scripts]
-data-platform-mcp = "dataplatform.mcp.server:main"
+data-platform-mcp = "dataplatform.cli:main"
 data-platform = "dataplatform.cli:main"
 
 [project.urls]

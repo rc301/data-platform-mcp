@@ -75,7 +75,7 @@ Inside an existing Glue job repository, generate the Claude Code / MCP config
 (idempotent — only creates what's missing, never overwrites):
 
 ```bash
-data-platform init
+data-platform-mcp init
 ```
 
 This writes `CLAUDE.md`, `.mcp.json` and `.claude/{agents,skills,commands}/...`.
@@ -86,8 +86,11 @@ Discover everything the toolkit exposes — CLI commands, live MCP tools, and th
 scaffolded skill/agent/slash-command:
 
 ```bash
-data-platform list
+data-platform-mcp list
 ```
+
+> The command is named after the package. `data-platform` is a shorter alias
+> for the exact same dispatcher, so `data-platform init` also works.
 
 ## Use with Claude Code
 
@@ -98,6 +101,7 @@ Add to your MCP config (`~/.claude/mcp.json` or project `.mcp.json`):
   "mcpServers": {
     "data-platform": {
       "command": "data-platform-mcp",
+      "args": ["serve"],
       "env": {
         "AWS_PROFILE": "your-dev-profile",
         "DATAPLATFORM_SANDBOX_ACCOUNTS": "111122223333"
@@ -109,6 +113,20 @@ Add to your MCP config (`~/.claude/mcp.json` or project `.mcp.json`):
 
 Then in a session: *"list glue jobs matching orders, inspect the ETL one, and
 replicate it to my sandbox profile."*
+
+## Documentation
+
+Full docs live in [`docs/`](docs/) — start at the
+[documentation index](docs/README.md):
+
+- [getting-started](docs/getting-started.md) — install → configure → `init` → first session
+- [cli](docs/cli.md) — the `data-platform-mcp` command (`init` / `list` / `serve`)
+- [configuration](docs/configuration.md) — env vars, profiles, region, sandbox accounts
+- [mcp-server](docs/mcp-server.md) — the thin-shell server + full tool reference
+- [commands](docs/commands.md) — the command catalog and how to add one
+- [architecture](docs/architecture.md) — the four layers + tool/command reuse map
+- [security](docs/security.md) — the sandbox guard and secrets hygiene
+- [company-adaptation](docs/company-adaptation.md) — the `TODO(empresa)` checklist
 
 ## Develop
 

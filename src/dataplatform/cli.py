@@ -1,14 +1,20 @@
-"""``data-platform`` developer CLI.
+"""``data-platform-mcp`` developer CLI (aliased as ``data-platform``).
 
-Currently a single command, ``init``, that scaffolds the Claude Code / MCP
-configuration into a Glue job repository. It is deliberately *not* an MCP tool:
-the MCP server talks to AWS and must stay thin; writing local project files is a
-one-off developer bootstrap that belongs in a plain CLI (like ``git init`` or
-``terraform init``), available the moment the package is installed — before the
-repo has any Claude config to expose a command from.
+One console command, installed with the package, with three subcommands:
 
-``init`` is idempotent and never overwrites: it only creates files that are
-missing, so it is safe to re-run to pick up new templates.
+* ``init``  — scaffolds the Claude Code / MCP config into a Glue job repo. It is
+  deliberately *not* an MCP tool: the server talks to AWS and must stay thin;
+  writing local project files is a one-off bootstrap that belongs in a plain CLI
+  (like ``git init``), available the moment the package is installed — before
+  the repo has any Claude config to expose a command from. It is idempotent and
+  never overwrites: it only creates missing files, safe to re-run for new
+  templates.
+* ``list``  — prints everything the toolkit exposes (CLI, MCP tools, assets).
+* ``serve`` — starts the stdio MCP server (what ``.mcp.json`` invokes).
+
+Everything here is cross-platform (Windows and Linux): paths go through
+``pathlib``/``importlib.resources`` and every file read/write pins
+``encoding="utf-8"``, so it does not depend on the OS default code page.
 """
 
 from __future__ import annotations
@@ -58,6 +64,7 @@ _FILES: tuple[tuple[str, str], ...] = (
 _CLI_COMMANDS: tuple[tuple[str, str], ...] = (
     ("init", "Cria a config do Claude Code / MCP neste repo (idempotente)."),
     ("list", "Lista tudo que este toolkit expõe (comandos, tools, assets)."),
+    ("serve", "Sobe o servidor MCP (stdio) — o que o .mcp.json chama."),
 )
 
 _SCAFFOLDED_ASSETS: tuple[tuple[str, str, str], ...] = (
@@ -139,10 +146,25 @@ def _mcp_tools() -> list[tuple[str, str]]:
     return asyncio.run(_collect())
 
 
+def serve() -> int:
+    """Start the stdio MCP server. Requires the ``[mcp]`` extra."""
+    try:
+        from dataplatform.mcp.server import main as serve_main
+    except ImportError:
+        print(
+            "O servidor MCP precisa do extra [mcp]. Instale com:\n"
+            "  pip install 'data-platform-mcp[mcp]'",
+            file=sys.stderr,
+        )
+        return 1
+    serve_main()
+    return 0
+
+
 def list_all() -> int:
-    print("data-platform — comandos de CLI:\n")
+    print("data-platform-mcp — comandos de CLI:\n")
     for name, desc in _CLI_COMMANDS:
-        print(f"  data-platform {name:6}  {desc}")
+        print(f"  data-platform-mcp {name:6}  {desc}")
 
     print("\nTools do MCP (server 'data-platform'):\n")
     tools = _mcp_tools()
@@ -173,6 +195,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
 
     sub.add_parser("list", help="Lista comandos de CLI, tools do MCP e assets do repo.")
+    sub.add_parser("serve", help="Sobe o servidor MCP (stdio); usado pelo .mcp.json.")
     return parser
 
 
@@ -182,6 +205,8 @@ def main(argv: list[str] | None = None) -> int:
         return init(Path(args.path).resolve(), force=args.force)
     if args.command == "list":
         return list_all()
+    if args.command == "serve":
+        return serve()
     return 1
 
 

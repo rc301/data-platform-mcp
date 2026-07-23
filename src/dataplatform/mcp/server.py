@@ -209,7 +209,11 @@ def check_partitions(
 
 
 def main() -> None:
-    """Entry point for the ``data-platform-mcp`` console script (stdio)."""
+    """Start the stdio MCP server.
+
+    Invoked via ``data-platform-mcp serve`` (the CLI dispatches here); also
+    runnable directly as ``python -m dataplatform.mcp.server``.
+    """
     mcp.run()
 
 

@@ -21,7 +21,8 @@ def test_list_runs_without_mcp_extra(capsys):
 
     assert list_all() == 0
     out = capsys.readouterr().out
-    assert "data-platform init" in out
+    assert "data-platform-mcp init" in out
+    assert "data-platform-mcp serve" in out
     assert "validar-job" in out
 
 

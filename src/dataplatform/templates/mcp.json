@@ -2,6 +2,7 @@
   "mcpServers": {
     "data-platform": {
       "command": "data-platform-mcp",
+      "args": ["serve"],
       "env": {
         "AWS_PROFILE": "${AWS_PROFILE}",
         "AWS_REGION": "${AWS_REGION}",

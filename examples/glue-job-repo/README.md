@@ -4,7 +4,7 @@ Repositório de exemplo mostrando como um repo de Glue jobs se organiza para usa
 o `data-platform-mcp` com Claude Code. Aqui ficam **só os arquivos próprios do
 repo** (os jobs e seus testes). A configuração do Claude Code / MCP
 (`CLAUDE.md`, `.mcp.json`, `.claude/…`) **não** é versionada aqui de propósito:
-ela é gerada por `data-platform init`, cuja fonte única de verdade são os
+ela é gerada por `data-platform-mcp init`, cuja fonte única de verdade são os
 templates do toolkit. Assim o exemplo nunca fica defasado em relação a eles.
 
 ## Estrutura
@@ -26,13 +26,13 @@ Gere a config do Claude Code / MCP neste repo — isto cria `CLAUDE.md`,
 `.mcp.json` e `.claude/{agents,skills,commands}/…`:
 
 ```bash
-data-platform init
+data-platform-mcp init
 ```
 
 Veja o catálogo de comandos que passa a existir:
 
 ```bash
-data-platform list
+data-platform-mcp list
 ```
 
 Depois exporte suas credenciais (nunca vão para o Git):
