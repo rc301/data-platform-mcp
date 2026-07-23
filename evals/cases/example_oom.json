@@ -1,0 +1,20 @@
+{
+  "name": "OOM no executor — a causa está no Caused by, não no ruído final",
+  "command_name": "glueetl",
+  "run_id": "jr_example_oom",
+  "log_lines": [
+    "2026-07-22 12:03:01 INFO  Stage 4 started",
+    "2026-07-22 12:04:10 INFO  Reading partition dt=2026-07-21",
+    "2026-07-22 12:04:55 ERROR Executor: Exception in task 7.0",
+    "org.apache.spark.SparkException: Job aborted due to stage failure",
+    "Caused by: java.lang.OutOfMemoryError: Java heap space",
+    "  at org.apache.spark.memory.MemoryConsumer.allocateArray",
+    "2026-07-22 12:05:00 INFO  Shutting down executor 3",
+    "2026-07-22 12:05:01 INFO  Cleaning up temp files"
+  ],
+  "expect": {
+    "found_markers": true,
+    "excerpt_contains": ["Caused by: java.lang.OutOfMemoryError: Java heap space"],
+    "excerpt_excludes": []
+  }
+}
