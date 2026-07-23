@@ -15,6 +15,23 @@ import os
 from dataclasses import dataclass
 
 import boto3
+from botocore.exceptions import ClientError as AwsClientError
+
+# This module is the single seam onto the AWS SDK: it is the only file that
+# imports boto3/botocore. Session creation lives here, and the AWS client-error
+# type is re-exported as ``AwsClientError`` so callers catch it without importing
+# botocore themselves. When migrating to a company Glue library (the B→A path),
+# this is the one file to adapt.
+__all__ = [
+    "AwsClientError",
+    "SANDBOX_ENV_VAR",
+    "DEFAULT_REGION",
+    "SandboxViolation",
+    "Session",
+    "sandbox_account_ids",
+    "resolve_session",
+    "ensure_sandbox",
+]
 
 SANDBOX_ENV_VAR = "DATAPLATFORM_SANDBOX_ACCOUNTS"
 

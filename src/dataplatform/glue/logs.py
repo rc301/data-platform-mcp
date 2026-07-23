@@ -10,9 +10,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from botocore.exceptions import ClientError
-
-from dataplatform.config import Session
+from dataplatform.config import AwsClientError, Session
 
 # Error log group depends on the job type (Command.Name).
 # TODO(empresa) item 3 — log group: estes são os grupos "legado". Se a empresa
@@ -50,7 +48,7 @@ def error_excerpt(
         streams = logs.describe_log_streams(
             logGroupName=log_group, logStreamNamePrefix=run_id
         ).get("logStreams", [])
-    except ClientError as exc:
+    except AwsClientError as exc:
         return {
             "log_group": log_group,
             "available": False,
