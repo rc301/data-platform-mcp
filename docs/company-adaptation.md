@@ -16,7 +16,7 @@ Cada item abaixo aponta o arquivo, o que assumimos no MVP e o que revisar.
 |---|---|---|---|
 | 1 | `config.py` | Modelo de auth (named profiles) | Não — decidido |
 | 2 | `config.py` | Região da conta de dados | Depende |
-| 3 | `glue/logs.py` | Log group / naming de stream | **Sim** — validar contra run real |
+| 3 | `glue/logs.py` | Log group / naming de stream | ✅ Implementado — confirmar em produção |
 | 4 | `glue/jobs.py` | Campos de job incompletos | **Sim** se usar os campos faltantes |
 | 5 | `glue/replicate.py` | Conflitos de replicação | **Sim** para pythonshell / VPC |
 | 6 | `glue/validate.py` | Argumentos herdados no run | **Sim** para run de validação real |
@@ -41,13 +41,14 @@ migrar para "profile base + assume-role por conta" — aí injete `role_arn` e u
 região, exponha um parâmetro `region` nas tools de tabela (`inspect_table` /
 `check_partitions`) e propague até `resolve_session`.
 
-### Item 3 — log group e naming de stream **(validar cedo)**
-`glue/logs.py`. Os grupos usados são os "legado". Com **continuous logging**
-(padrão atual do Glue) os logs vão para `/aws-glue/jobs/logs-v2`, com streams
-`<run_id>_<attempt>` e streams `-driver`/executor separados. **Valide grupo +
-heurística de stream contra um run real que falhou** antes de confiar no excerto
-de erro (`_pick_stream`). É o item que mais afeta a qualidade do
-`analyze-job-run`.
+### Item 3 — log group e naming de stream ✅
+`glue/logs.py`. **Implementado.** `error_excerpt` tenta o grupo de continuous
+logging (`/aws-glue/jobs/logs-v2`) e cai para o legado (`/aws-glue/jobs/error`);
+dentro do grupo, **varre os streams por worker** (`<run_id>_g-<worker_hash>`, sem
+rótulo de driver na empresa) e devolve o primeiro que contém o marcador de erro,
+preferindo o grupo cujo stream realmente tem o traceback. Cobre os dois mundos
+sem configuração. **A confirmar em produção:** que o marcador de erro cai dentro
+das `_MAX_STREAMS_SCANNED` streams mais recentes em runs com muitos executores.
 
 ### Item 4 — campos de job incompletos
 `glue/jobs.py`, `_PORTABLE_FIELDS`. Jobs reais costumam usar
@@ -89,6 +90,6 @@ a empresa quiser "quem replicou/rodou o quê", emita ali um log estruturado
 - **Skill `testes-unitarios`**: hoje é só uma casca com placeholder
   (`TODO(empresa)` no `SKILL.md`). Troque o corpo pelo padrão de testes da
   empresa (o markdown que você já tem). Ver [commands.md](commands.md).
-- **Eval de diagnóstico**: montar um conjunto de avaliação a partir de
-  transcrições reais e anonimizadas de falhas, para medir a qualidade do
-  `analyze-job-run` depois de ajustar o item 3.
+- **Eval de diagnóstico**: a casca já existe em `evals/` (roda o extrator de
+  excerto real contra streams gravados). Preencha `evals/cases/` com falhas reais
+  anonimizadas — inclusive o naming `<run_id>_g-<worker_hash>` da empresa.
