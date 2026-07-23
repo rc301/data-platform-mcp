@@ -9,14 +9,12 @@ reads, and keeps the composition in the library (the MCP server stays a shell).
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from dataplatform.config import Session
+from dataplatform.glue.jobs import list_job_runs
 from dataplatform.glue.logs import error_excerpt
-
-# Brazil has had no DST since 2019, so a fixed -03:00 offset is correct.
-BRT = timezone(timedelta(hours=-3), "BRT")
+from dataplatform.timeutil import fmt_brt
 
 _FAILURE_STATES = {"FAILED", "ERROR", "TIMEOUT", "STOPPED"}
 
@@ -29,12 +27,16 @@ def diagnose_job_run(
     run = glue.get_job_run(JobName=job_name, RunId=run_id)["JobRun"]
     state = run.get("JobRunState")
 
+    history = list_job_runs(session, job_name, limit=recent_runs)
+    for r in history:
+        r["is_current"] = r["run_id"] == run_id
+
     result: dict[str, Any] = {
         "job": job_name,
         "run_id": run_id,
         "state": state,
         "summary": _summarize_run(job_name, run_id, run),
-        "recent_runs": _recent_runs(glue, job_name, run_id, recent_runs),
+        "recent_runs": history,
     }
 
     if state == "SUCCEEDED":
@@ -48,39 +50,15 @@ def diagnose_job_run(
     return result
 
 
-def _fmt_brt(value: datetime | None) -> str | None:
-    if value is None:
-        return None
-    if value.tzinfo is None:
-        value = value.replace(tzinfo=timezone.utc)
-    return value.astimezone(BRT).strftime("%Y-%m-%d %H:%M:%S %Z")
-
-
 def _summarize_run(job_name: str, run_id: str, run: dict[str, Any]) -> dict[str, Any]:
     return {
         "job": job_name,
         "run_id": run_id,
-        "started_brt": _fmt_brt(run.get("StartedOn")),
-        "completed_brt": _fmt_brt(run.get("CompletedOn")),
+        "started_brt": fmt_brt(run.get("StartedOn")),
+        "completed_brt": fmt_brt(run.get("CompletedOn")),
         "duration_seconds": run.get("ExecutionTime"),
         "worker_type": run.get("WorkerType"),
         "number_of_workers": run.get("NumberOfWorkers"),
         "max_capacity_dpu": run.get("MaxCapacity"),
         "dpu_seconds": run.get("DPUSeconds"),
     }
-
-
-def _recent_runs(
-    glue: Any, job_name: str, current_run_id: str, limit: int
-) -> list[dict[str, Any]]:
-    runs = glue.get_job_runs(JobName=job_name, MaxResults=limit).get("JobRuns", [])
-    return [
-        {
-            "run_id": r.get("Id"),
-            "state": r.get("JobRunState"),
-            "started_brt": _fmt_brt(r.get("StartedOn")),
-            "duration_seconds": r.get("ExecutionTime"),
-            "is_current": r.get("Id") == current_run_id,
-        }
-        for r in runs
-    ]

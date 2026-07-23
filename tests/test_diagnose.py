@@ -2,7 +2,8 @@ from datetime import datetime, timezone
 from types import SimpleNamespace
 
 from dataplatform.glue import diagnose
-from dataplatform.glue.diagnose import _fmt_brt, diagnose_job_run
+from dataplatform.glue.diagnose import diagnose_job_run
+from dataplatform.timeutil import fmt_brt
 
 
 class _Glue:
@@ -38,7 +39,7 @@ def _session(glue, monkeypatch):
 
 def test_fmt_brt_converts_utc_to_minus_three():
     dt = datetime(2026, 7, 22, 12, 0, tzinfo=timezone.utc)
-    assert _fmt_brt(dt) == "2026-07-22 09:00:00 BRT"
+    assert fmt_brt(dt) == "2026-07-22 09:00:00 BRT"
 
 
 def test_success_run_has_no_error_excerpt(monkeypatch):

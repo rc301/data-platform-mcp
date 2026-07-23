@@ -164,6 +164,20 @@ def diagnose_job_run(job_name: str, run_id: str, profile: str | None = None) -> 
 
 
 @mcp.tool()
+def list_job_runs(job_name: str, limit: int = 5, profile: str | None = None) -> list[dict[str, Any]]:
+    """List a job's most recent runs (id, state, start in BRT, duration).
+
+    Reusable primitive for any command that needs run history: checking a
+    regression, confirming the last sandbox run was green before promoting, or
+    reporting when a job last succeeded. Runs against the job's account.
+
+    Do NOT use to diagnose a specific failure — use ``diagnose_job_run`` for the
+    full picture of one run.
+    """
+    return glue.list_job_runs(resolve_session(profile=profile), job_name, limit=limit)
+
+
+@mcp.tool()
 def inspect_table(database: str, table: str, data_profile: str) -> dict[str, Any]:
     """Inspect a source table's schema and format (read-only, data account).
 

@@ -52,6 +52,7 @@ export DATAPLATFORM_SANDBOX_ACCOUNTS=111122223333,444455556666
 | `validate_sandbox_job` | read | Static validation of a replicated job |
 | `run_sandbox_job` | write (guarded) | Start a short validation run |
 | `get_sandbox_run_status` | read | Poll a validation run |
+| `list_job_runs` | read | Recent run history (reusable primitive) |
 | `diagnose_job_run` | read | One-call diagnosis of a run (summary + history + error excerpt) |
 | `inspect_table` | read (data acct) | Source table schema + Iceberg detection |
 | `check_partitions` | read (data acct) | Whether a catalog partition exists (refuses Iceberg) |
@@ -61,6 +62,12 @@ The read tools split across accounts: run diagnostics use the dev's
 resolves to the (third) account holding the source tables. `diagnose_job_run` is
 workflow-altitude by design — it bundles what you need to start diagnosing a
 failure in a single high-signal call rather than several low-level reads.
+
+The tools are a **shared capability layer**: commands and skills compose them,
+so a new command (code-review, doc generation, template migration…) is usually a
+new skill + slash command over the *existing* tools, not a new tool. See
+[`docs/architecture.md`](docs/architecture.md) for the reuse map and the recipe
+for adding commands.
 
 ## Scaffold a Glue job repo
 

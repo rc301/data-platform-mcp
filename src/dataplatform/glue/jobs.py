@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from dataplatform.config import Session
+from dataplatform.timeutil import fmt_brt
 
 # Fields that are meaningful when comparing / replicating a job. Everything
 # else Glue returns (timestamps, ARNs, internal counters) is noise for the
@@ -54,3 +55,22 @@ def get_job(session: Session, job_name: str) -> dict[str, Any]:
     glue = session.client("glue")
     job = glue.get_job(JobName=job_name)["Job"]
     return {field: job[field] for field in _PORTABLE_FIELDS if field in job}
+
+
+def list_job_runs(session: Session, job_name: str, limit: int = 5) -> list[dict[str, Any]]:
+    """Return the most recent runs of a job (id, state, start in BRT, duration).
+
+    Reusable primitive: regression checks (analyze), "was the last sandbox run
+    green?" (code-review), and "when did it last succeed?" (docs) all build on
+    this rather than each re-querying run history.
+    """
+    runs = session.client("glue").get_job_runs(JobName=job_name, MaxResults=limit)["JobRuns"]
+    return [
+        {
+            "run_id": r.get("Id"),
+            "state": r.get("JobRunState"),
+            "started_brt": fmt_brt(r.get("StartedOn")),
+            "duration_seconds": r.get("ExecutionTime"),
+        }
+        for r in runs
+    ]
