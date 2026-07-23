@@ -15,6 +15,10 @@ from botocore.exceptions import ClientError
 from dataplatform.config import Session
 
 # Error log group depends on the job type (Command.Name).
+# TODO(empresa) item 3 — log group: estes são os grupos "legado". Se a empresa
+# usa continuous logging (padrão atual), os logs vão em /aws-glue/jobs/logs-v2
+# com estrutura de stream diferente. Valide grupo + naming contra um run real
+# falhado antes de confiar no excerto (ver também _pick_stream).
 _ERROR_LOG_GROUP = {
     "glueetl": "/aws-glue/jobs/error",
     "gluestreaming": "/aws-glue/jobs/error",
@@ -76,6 +80,9 @@ def error_excerpt(
 
 
 def _pick_stream(streams: list[dict[str, Any]], run_id: str) -> str:
+    # TODO(empresa) item 3 — naming de stream: com continuous logging o stream é
+    # <run_id>_<attempt> e há streams -driver / executor separados. Ajuste a
+    # heurística abaixo depois de olhar os streams reais do grupo logs-v2.
     names = [s["logStreamName"] for s in streams]
     for name in names:
         if name == run_id:

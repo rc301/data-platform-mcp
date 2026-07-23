@@ -9,6 +9,11 @@ from dataplatform.glue.jobs import get_job
 
 
 def _to_create_input(config: dict[str, Any], overrides: dict[str, str]) -> dict[str, Any]:
+    # TODO(empresa) item 5 — conflitos de replicação:
+    #  * pythonshell com MaxCapacity + NumberOfWorkers no payload faz create_job
+    #    estourar; escolha um conforme o Command.Name.
+    #  * Connections apontam para VPC/conexões de produção que não existem na
+    #    sandbox; adicione um connection_override (como já há role/script).
     payload = {k: v for k, v in config.items() if k != "Name"}
     if "Role" in overrides:
         payload["Role"] = overrides["Role"]

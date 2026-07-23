@@ -10,6 +10,11 @@ from dataplatform.timeutil import fmt_brt
 # Fields that are meaningful when comparing / replicating a job. Everything
 # else Glue returns (timestamps, ARNs, internal counters) is noise for the
 # replicate → validate flow.
+# TODO(empresa) item 4 — campos incompletos: jobs reais provavelmente usam
+# SecurityConfiguration, NonOverridableArguments, NotificationProperty e
+# MaxCapacity (pythonshell NÃO usa NumberOfWorkers). Tags nem vêm no get_job —
+# é get_tags à parte, e a governança pode exigi-las. Acrescente o que a empresa
+# usa antes de confiar na replicação (ver também replicate._to_create_input).
 _PORTABLE_FIELDS = (
     "Name",
     "Description",

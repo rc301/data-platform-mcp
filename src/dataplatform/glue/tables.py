@@ -10,6 +10,10 @@ from dataplatform.config import Session
 def inspect_table(session: Session, database: str, table: str) -> dict[str, Any]:
     """Return schema + format of a catalog table, detecting Iceberg."""
 
+    # TODO(empresa) item 9 — Lake Formation: sob LF, get_table pode devolver
+    # colunas filtradas por permissão. Um "schema drift" aparente pode ser
+    # efeito de permissão do data_profile, não do schema real. Registre isso no
+    # diagnóstico da skill.
     tbl = session.client("glue").get_table(DatabaseName=database, Name=table)["Table"]
     params = tbl.get("Parameters", {}) or {}
     is_iceberg = params.get("table_type", "").upper() == "ICEBERG" or "metadata_location" in params
@@ -50,6 +54,9 @@ def check_partitions(
             ),
         }
 
+    # TODO(empresa) item 7 — paginação: MaxResults=100 sem paginar. Para checar
+    # EXISTÊNCIA (exists) basta a 1ª página; mas matched_count satura em 100 e
+    # engana em tabelas grandes. Se for reportar contagem, pagine ou rotule ">=100".
     resp = session.client("glue").get_partitions(
         DatabaseName=database, TableName=table, Expression=expression, MaxResults=100
     )

@@ -43,6 +43,10 @@ def start_validation_run(
 
     ensure_sandbox(session)
     glue = session.client("glue")
+    # TODO(empresa) item 6 — argumentos herdados: Arguments aqui IGNORA os
+    # DefaultArguments do job. Jobs reais costumam precisar de --JOB_NAME,
+    # --job-bookmark-option, etc. Para um run de validação barato e determinístico:
+    # mesclar DefaultArguments + desabilitar bookmark + capar DPU/workers.
     run_id = glue.start_job_run(
         JobName=job_name,
         Arguments=arguments or {},

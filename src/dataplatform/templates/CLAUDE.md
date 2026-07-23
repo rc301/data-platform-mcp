@@ -8,29 +8,39 @@ Contexto e regras para o Claude Code trabalhar neste repositório. Este arquivo
 Cada pasta em `jobs/<nome>/` é um Glue job: um `script.py` (o código que roda no
 Glue) e um `job.json` (a configuração do job — role, worker, argumentos).
 
-## Fluxo de trabalho padrão
+Você trabalha aqui como um engenheiro de dados: entende jobs, altera scripts,
+valida mudanças, investiga falhas e documenta. Não há um único fluxo — há um
+**catálogo de comandos**, cada um encapsulado numa skill que compõe as tools do
+MCP. Escolha o comando pela intenção do usuário.
 
-Ao alterar um job, o ciclo é sempre:
+## Comandos disponíveis
 
-1. **Inspecionar** o job existente em produção para entender a configuração atual.
-2. **Replicar** para a conta sandbox (nunca se testa em produção).
-3. **Rodar e validar** na sandbox, olhando o log quando falhar.
-4. Só então abrir PR para `develop`.
+| Quando o usuário quer… | Use a skill / comando | Encapsula |
+|---|---|---|
+| Validar uma alteração antes do PR | **`validar-job`** (`/validar-job`) | inspecionar → replicar na sandbox → rodar e validar |
+| Entender por que um run falhou | **`analyze-job-run`** (`/analyze-job-run`) | resumo do run → excerto de erro → schema/partição da origem |
+| Rodar os testes unitários | **`testes-unitarios`** (`/testes-unitarios`) | suíte de testes puros do repo |
 
-Este fluxo está encapsulado na skill **`validar-job`** — use-a quando for
-validar uma alteração.
+Novos comandos entram como skill + slash command sobre as **mesmas** tools — não
+como tools novas. Rode `data-platform list` para ver o catálogo atual, ou veja o
+mapa de reuso em `docs/architecture.md` (no repo do toolkit).
 
-Quando um run **falha em produção**, o fluxo é investigar:
-inspecionar o run → ler o excerto de erro → checar schema/partição da origem →
-diagnosticar. Encapsulado na skill **`analyze-job-run`** (e no subagente
-`job-diagnoser`). Leituras em contas de dados terceiras usam um `data_profile`
-próprio, sempre read-only.
+## Como trabalhar
+
+- **Nunca teste em produção.** Toda validação de mudança passa pela conta
+  sandbox — é o que a skill `validar-job` faz. Só abra PR para `develop` depois
+  de validar.
+- **Leituras em contas de dados terceiras** (schema/partição de tabela origem)
+  usam um `data_profile` próprio e são sempre read-only.
+- **Falha em produção é investigação, não conserto às cegas**: diagnostique com
+  `analyze-job-run` (ou o subagente `job-diagnoser`) e proponha a correção para o
+  usuário testar — não a aplique sozinho em produção.
 
 ## Ferramentas (MCP)
 
 O servidor MCP **`data-platform`** (configurado em `.mcp.json`) expõe as tools
-para inspecionar/replicar/rodar/logar jobs. Prefira essas tools a chamar `aws`
-na mão — elas já aplicam as travas de segurança.
+para inspecionar/replicar/rodar/logar jobs e inspecionar tabelas. Prefira essas
+tools a chamar `aws` na mão — elas já aplicam as travas de segurança.
 
 ## Regras de segurança — inegociáveis
 

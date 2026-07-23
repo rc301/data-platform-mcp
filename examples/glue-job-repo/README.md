@@ -1,38 +1,38 @@
 # glue-job-repo (exemplo)
 
-Repositório de exemplo mostrando como usar o `data-platform-mcp` com Claude
-Code num repo de Glue jobs. **Referência** — copie a estrutura para o seu repo
-real.
+Repositório de exemplo mostrando como um repo de Glue jobs se organiza para usar
+o `data-platform-mcp` com Claude Code. Aqui ficam **só os arquivos próprios do
+repo** (os jobs e seus testes). A configuração do Claude Code / MCP
+(`CLAUDE.md`, `.mcp.json`, `.claude/…`) **não** é versionada aqui de propósito:
+ela é gerada por `data-platform init`, cuja fonte única de verdade são os
+templates do toolkit. Assim o exemplo nunca fica defasado em relação a eles.
 
 ## Estrutura
 
 ```
 .
-├── CLAUDE.md                       # contexto e regras carregados pelo Claude
-├── .mcp.json                       # registra o server MCP data-platform
-├── .claude/
-│   ├── agents/                     # job-validator, job-diagnoser (subagentes)
-│   ├── commands/                   # /validar-job, /analyze-job-run
-│   └── skills/                     # validar-job, analyze-job-run (+ reference/)
 ├── jobs/orders_etl/
 │   ├── script.py                   # código do Glue job (transform testável)
 │   └── job.json                    # config do job (placeholders, sem segredo)
 └── tests/test_transform.py         # testa a regra pura, sem AWS
 ```
 
-- **`.mcp.json`** = as *tools* (o que muda entre execuções).
-- **`.claude/skills`** = o *playbook* e o conhecimento estático.
-- **`.claude/agents`** = quem orquestra tools + skill de forma autônoma.
-
 ## Setup
 
 Pré-requisito: `pip install "data-platform-mcp[mcp]"` (o binário
 `data-platform-mcp` precisa estar no PATH).
 
-Gere os arquivos de config neste repo com:
+Gere a config do Claude Code / MCP neste repo — isto cria `CLAUDE.md`,
+`.mcp.json` e `.claude/{agents,skills,commands}/…`:
 
 ```bash
 data-platform init
+```
+
+Veja o catálogo de comandos que passa a existir:
+
+```bash
+data-platform list
 ```
 
 Depois exporte suas credenciais (nunca vão para o Git):
