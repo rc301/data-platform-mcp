@@ -8,8 +8,8 @@ tell the model when (and when not) to reach for each tool.
 Design rules encoded here:
   * Only what *changes between runs* is a tool. Static knowledge — schemas,
     framework conventions — is documentation, not a tool call.
-  * Credentials are the developer's own (``AWS_PROFILE``). Writes are guarded to
-    sandbox accounts by the library layer.
+  * Credentials are the developer's own (``AWS_PROFILE``). Every tool is
+    read-only; the toolkit never mutates AWS.
   * Transport is stdio, so the server can be launched directly by Claude Code.
 """
 
@@ -94,7 +94,7 @@ def list_job_runs(
     """List a job's most recent runs (id, state, start in BRT, duration).
 
     Reusable primitive for any command that needs run history: checking a
-    regression, confirming the last sandbox run was green before promoting, or
+    regression, confirming the last run was green before promoting, or
     reporting when a job last succeeded. Runs against the job's account.
 
     Do NOT use to diagnose a specific failure — use ``diagnose_job_run`` for the
@@ -111,8 +111,8 @@ def inspect_table(database: str, table: str, data_profile: str) -> dict[str, Any
     Iceberg or Hive. Use to check for schema drift against the job's script, and
     to learn the table format before checking partitions.
 
-    ``data_profile`` must resolve to the account holding the table (a third
-    account the sandbox can read). Do NOT use for the job's own account.
+    ``data_profile`` must resolve to the account holding the table (a separate
+    data account, read-only). Do NOT use for the job's own account.
     """
     return glue.inspect_table(resolve_session(profile=data_profile), database, table)
 

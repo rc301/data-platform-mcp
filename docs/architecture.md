@@ -40,10 +40,8 @@ Nenhum comando ganha uma tool `code_review_job` ou `generate_docs`: esses são
 **skills** que compõem os primitivos acima. A rubrica de review e o padrão de
 doc são **conhecimento estático** → arquivos de referência da skill.
 
-> As funções de escrita guardadas (`glue.replicate_to_sandbox`, `validate_job`,
-> `start_validation_run`, `get_run_status`) continuam na biblioteca como
-> substrato reutilizável, mas **não** são expostas como tools do MCP neste build
-> — por isso ficam fora do mapa acima.
+> O toolkit é somente-leitura: não há operações de escrita (nem como tools do
+> MCP, nem na biblioteca).
 
 ## Como adicionar um comando novo
 

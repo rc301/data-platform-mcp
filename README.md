@@ -18,10 +18,8 @@ never imported by a Glue job at runtime.
   framework conventions) stays in docs, not in tools.
 - **Developer credentials only.** Everything uses the ambient `AWS_PROFILE` —
   no service accounts.
-- **The MCP surface is read-only.** The library keeps guarded, sandbox-only
-  write functions (`dataplatform.glue.replicate_to_sandbox` etc., fail-closed
-  via `DATAPLATFORM_SANDBOX_ACCOUNTS`), but they are **not** exposed as MCP
-  tools in this build.
+- **Read-only.** The toolkit never mutates AWS — there are no write operations,
+  in the tools or the library.
 
 ## Install
 
@@ -40,8 +38,6 @@ pip install -e ".[mcp,dev]"
 
 ```bash
 export AWS_PROFILE=your-dev-profile
-# only needed by the library's (unexposed) write functions; the MCP tools are read-only
-export DATAPLATFORM_SANDBOX_ACCOUNTS=111122223333,444455556666
 ```
 
 ## Tools
@@ -102,8 +98,7 @@ Add to your MCP config (`~/.claude/mcp.json` or project `.mcp.json`):
       "command": "data-platform-mcp",
       "args": ["serve"],
       "env": {
-        "AWS_PROFILE": "your-dev-profile",
-        "DATAPLATFORM_SANDBOX_ACCOUNTS": "111122223333"
+        "AWS_PROFILE": "your-dev-profile"
       }
     }
   }
@@ -120,11 +115,11 @@ Full docs live in [`docs/`](docs/) — start at the
 
 - [getting-started](docs/getting-started.md) — install → configure → `init` → first session
 - [cli](docs/cli.md) — the `data-platform-mcp` command (`init` / `list` / `serve`)
-- [configuration](docs/configuration.md) — env vars, profiles, region, sandbox accounts
+- [configuration](docs/configuration.md) — env vars, profiles, region
 - [mcp-server](docs/mcp-server.md) — the thin-shell server + full tool reference
 - [commands](docs/commands.md) — the command catalog and how to add one
 - [architecture](docs/architecture.md) — the four layers + tool/command reuse map
-- [security](docs/security.md) — the sandbox guard and secrets hygiene
+- [security](docs/security.md) — the read-only guarantee and secrets hygiene
 - [company-adaptation](docs/company-adaptation.md) — the `TODO(empresa)` checklist
 
 ## Develop

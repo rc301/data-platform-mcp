@@ -42,19 +42,15 @@ data-platform-mcp list
 ```bash
 # Linux / macOS
 export AWS_PROFILE=meu-profile-dev
-export DATAPLATFORM_SANDBOX_ACCOUNTS=111122223333,444455556666
 ```
 
 ```powershell
 # Windows (PowerShell)
 $env:AWS_PROFILE = "meu-profile-dev"
-$env:DATAPLATFORM_SANDBOX_ACCOUNTS = "111122223333,444455556666"
 ```
 
-`DATAPLATFORM_SANDBOX_ACCOUNTS` é a **lista de contas onde escrita é permitida**.
-Sem ela, toda operação de escrita é recusada (fail-closed). Detalhes em
-[security.md](security.md). Região: se o profile não define uma, cai para
-`sa-east-1` — ver [configuration.md](configuration.md).
+O toolkit é somente-leitura — basta o `AWS_PROFILE` do dev. Região: se o profile
+não define uma, cai para `sa-east-1` — ver [configuration.md](configuration.md).
 
 ## 3. Scaffold no repositório de jobs
 
@@ -111,5 +107,4 @@ Um exemplo completo vive em
 |---|---|---|
 | `data-platform-mcp: command not found` | pasta de scripts fora do `PATH` | Ative o venv ou adicione `.../Scripts` (Win) / `.../bin` (Linux) ao `PATH`. |
 | `O servidor MCP precisa do extra [mcp]` | instalou sem `[mcp]` | `pip install ".[mcp]"`. |
-| Escrita recusada (`SandboxViolation`) | `DATAPLATFORM_SANDBOX_ACCOUNTS` vazio ou conta errada | Configure a variável com a conta sandbox correta ([security.md](security.md)). |
 | Clients Glue/Logs sem região | profile sem região | Defina `AWS_REGION` ou confie no fallback `sa-east-1` ([configuration.md](configuration.md)). |

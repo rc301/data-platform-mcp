@@ -22,9 +22,8 @@ e operam sobre dois papéis de conta:
 - **Conta de dados (terceira):** passada como `data_profile`. Leitura read-only
   de schema/partição de tabelas de origem.
 
-As funções de **escrita** (guardadas, sandbox-only) continuam na biblioteca
-(`glue.replicate_to_sandbox`, `start_validation_run`, …) mas **não** são expostas
-como tools neste build — ver [security.md](security.md).
+Não há operações de escrita — nem como tools, nem na biblioteca. Ver
+[security.md](security.md).
 
 ## Referência das tools
 

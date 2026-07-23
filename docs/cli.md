@@ -71,7 +71,7 @@ Sobe o servidor MCP em **stdio**. É exatamente o que o `.mcp.json` gerado invoc
     "data-platform": {
       "command": "data-platform-mcp",
       "args": ["serve"],
-      "env": { "AWS_PROFILE": "...", "DATAPLATFORM_SANDBOX_ACCOUNTS": "..." }
+      "env": { "AWS_PROFILE": "...", "AWS_REGION": "..." }
     }
   }
 }

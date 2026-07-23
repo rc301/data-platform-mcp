@@ -1,4 +1,4 @@
-"""data-platform toolkit: inspect, replicate and validate AWS Glue data jobs.
+"""data-platform toolkit: read-only inspection and diagnosis of AWS Glue jobs.
 
 The MCP server (``dataplatform.mcp``) is a thin developer-only shell over the
 public functions exposed here. All business logic lives in this package; the

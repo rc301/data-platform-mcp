@@ -4,9 +4,7 @@ Credentials are always the developer's own — resolved from the standard AWS
 credential chain (``AWS_PROFILE`` / ``AWS_*`` env vars). There are no service
 accounts here: the toolkit acts as the human running it.
 
-Writes are only ever allowed against *sandbox* accounts. The set of sandbox
-account IDs is read from ``DATAPLATFORM_SANDBOX_ACCOUNTS`` (comma separated) and
-enforced by :func:`ensure_sandbox` before any mutating operation.
+The toolkit is read-only: it never mutates AWS, so there is no write guard.
 """
 
 from __future__ import annotations
@@ -25,24 +23,14 @@ from botocore.exceptions import ClientError as AwsClientError
 # this is the one file to adapt.
 __all__ = [
     "AwsClientError",
-    "SANDBOX_ENV_VAR",
     "DEFAULT_REGION",
-    "SandboxViolation",
     "Session",
-    "sandbox_account_ids",
     "resolve_session",
-    "ensure_sandbox",
 ]
-
-SANDBOX_ENV_VAR = "DATAPLATFORM_SANDBOX_ACCOUNTS"
 
 # Fallback region when neither the profile nor AWS_REGION/AWS_DEFAULT_REGION
 # (both read natively by boto3) set one. The company runs in sa-east-1.
 DEFAULT_REGION = "sa-east-1"
-
-
-class SandboxViolation(RuntimeError):
-    """Raised when a write is attempted against a non-sandbox account."""
 
 
 @dataclass(frozen=True)
@@ -61,22 +49,17 @@ class Session:
         return self.boto.client(service)  # type: ignore[call-overload]
 
 
-def sandbox_account_ids() -> frozenset[str]:
-    raw = os.environ.get(SANDBOX_ENV_VAR, "")
-    return frozenset(a.strip() for a in raw.split(",") if a.strip())
-
-
 def resolve_session(profile: str | None = None, region: str | None = None) -> Session:
     """Build a session from the developer's own AWS credentials.
 
     ``profile`` defaults to the ambient ``AWS_PROFILE``. The account ID is
-    resolved via STS so every downstream guard has an authoritative identity.
+    resolved via STS so callers have an authoritative identity to report.
     """
 
     # TODO(empresa) item 1 — modelo de auth: named profiles por conta (decidido).
-    # O parâmetro `profile` já cobre sandbox_profile / data_profile. Só troque
-    # para STS AssumeRole aqui se o time de infra migrar para "um profile base +
-    # assume-role por conta"; nesse caso injete role_arn e use sts.assume_role.
+    # O parâmetro `profile` já cobre o `data_profile` (leitura da conta de dados).
+    # Só troque para STS AssumeRole aqui se o time de infra migrar para "um profile
+    # base + assume-role por conta"; nesse caso injete role_arn e use sts.assume_role.
     boto = boto3.Session(profile_name=profile, region_name=region)
     # item 2 — region: precedência arg > profile > AWS_REGION/AWS_DEFAULT_REGION
     # (lidos nativamente pelo boto3) > DEFAULT_REGION. Sem isto, um profile sem
@@ -91,26 +74,3 @@ def resolve_session(profile: str | None = None, region: str | None = None) -> Se
         profile=profile or os.environ.get("AWS_PROFILE"),
         region=boto.region_name,
     )
-
-
-def ensure_sandbox(session: Session) -> None:
-    """Guard: raise unless ``session`` points at a configured sandbox account.
-
-    Call this at the top of every mutating operation. It fails closed — if no
-    sandbox accounts are configured, all writes are refused.
-    """
-
-    # TODO(empresa) item 10 — auditoria: este é o único gargalo por onde toda
-    # escrita passa. Se o time quiser trilha de "quem replicou/rodou o quê",
-    # emita aqui um log estruturado (account_id, profile, operação) antes de liberar.
-    allowed = sandbox_account_ids()
-    if not allowed:
-        raise SandboxViolation(
-            f"No sandbox accounts configured. Set {SANDBOX_ENV_VAR} to the "
-            "comma-separated account IDs where writes are permitted."
-        )
-    if session.account_id not in allowed:
-        raise SandboxViolation(
-            f"Account {session.account_id} is not a sandbox account. "
-            f"Writes are only allowed in: {', '.join(sorted(allowed))}."
-        )

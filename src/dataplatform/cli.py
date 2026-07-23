@@ -112,10 +112,7 @@ def init(target: Path, force: bool = False) -> int:
     if not created:
         print("\nNada a criar — o repo já está configurado.")
     else:
-        print(
-            "\nPronto. Agora exporte AWS_PROFILE e DATAPLATFORM_SANDBOX_ACCOUNTS "
-            "e abra o Claude Code neste repo."
-        )
+        print("\nPronto. Agora exporte AWS_PROFILE e abra o Claude Code neste repo.")
     _ = root  # keep the resource handle alive for the loop above
     return 0
 

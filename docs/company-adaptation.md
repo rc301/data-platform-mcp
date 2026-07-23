@@ -18,20 +18,19 @@ Cada item abaixo aponta o arquivo, o que assumimos no MVP e o que revisar.
 | 2 | `config.py` | Região da conta de dados | Depende |
 | 3 | `glue/logs.py` | Log group / naming de stream | ✅ Implementado — confirmar em produção |
 | 4 | `glue/jobs.py` | Campos de job incompletos | **Sim** se usar os campos faltantes |
-| 5 | `glue/replicate.py` | Conflitos de replicação | **Sim** para pythonshell / VPC |
-| 6 | `glue/validate.py` | Argumentos herdados no run | **Sim** para run de validação real |
 | 7 | `glue/tables.py` | Paginação de partições | Não — só afeta contagem |
 | 9 | `glue/tables.py` | Lake Formation filtra colunas | Atenção — falso "schema drift" |
-| 10 | `config.py` | Trilha de auditoria | Não — ponto de extensão |
 
-> (Não há item 8 aberto: uma suspeita inicial de account id hardcoded no
-> `.mcp.json` foi verificada e o template já usa interpolação `${...}`.)
+> Itens 5, 6 e 10 foram removidos: eram do caminho de **escrita** (replicação,
+> run de validação, trilha de auditoria da trava de sandbox), e esse caminho não
+> existe mais — o toolkit é somente-leitura. O item 8 nunca existiu (uma suspeita
+> de account id hardcoded no `.mcp.json` foi descartada: o template usa `${...}`).
 
 ## Detalhe por item
 
 ### Item 1 — modelo de auth *(decidido)*
 `config.py`, em `resolve_session`. A decisão é **named profiles por conta**; o
-parâmetro `profile` já cobre `sandbox_profile`/`data_profile`. Só mexa se a infra
+parâmetro `profile` já cobre o `data_profile`. Só mexa se a infra
 migrar para "profile base + assume-role por conta" — aí injete `role_arn` e use
 `sts.assume_role` neste ponto. Ver [configuration.md](configuration.md).
 
@@ -60,18 +59,6 @@ mais recentes em runs com muitos executores.
 `get_job` — é `get_tags` à parte, e a governança pode exigi-las. Acrescente o que
 a empresa usa aos campos portáveis.
 
-### Item 5 — conflitos de replicação
-`glue/replicate.py`, `_to_create_input`. Dois conflitos a tratar por tipo de job:
-`pythonshell` com `MaxCapacity` + `NumberOfWorkers` no payload faz `create_job`
-estourar (escolha um conforme `Command.Name`); e `Connections` apontam para
-VPC/conexões de produção que não existem na sandbox — precisa de override.
-
-### Item 6 — argumentos herdados no run de validação
-`glue/validate.py`, `start_validation_run`. O `Arguments` do run **ignora** os
-`DefaultArguments` do job. Jobs reais costumam precisar de `--JOB_NAME`,
-`--job-bookmark-option`, etc. Para um run de validação barato e determinístico:
-mesclar `DefaultArguments`, desabilitar o bookmark e capar DPU/workers.
-
 ### Item 7 — paginação de partições
 `glue/tables.py`, `check_partitions`. `MaxResults=100` sem paginar. Para checar
 **existência** basta a 1ª página; mas `matched_count` satura em 100 e engana em
@@ -82,11 +69,6 @@ tabelas grandes. Se for reportar contagem, pagine ou rotule `">=100"`.
 colunas filtradas pela permissão do `data_profile`. Um "schema drift" aparente
 pode ser efeito de permissão, não do schema real — a skill de diagnóstico deve
 registrar essa ressalva.
-
-### Item 10 — trilha de auditoria
-`config.py`, `ensure_sandbox`. É o único gargalo por onde toda escrita passa. Se
-a empresa quiser "quem replicou/rodou o quê", emita ali um log estruturado
-(account_id, profile, operação) antes de liberar. Ver [security.md](security.md).
 
 ## Além dos anchors de código
 
