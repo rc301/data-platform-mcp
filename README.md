@@ -53,6 +53,18 @@ export DATAPLATFORM_SANDBOX_ACCOUNTS=111122223333,444455556666
 | `run_sandbox_job` | write (guarded) | Start a short validation run |
 | `get_sandbox_run_status` | read | Poll a validation run |
 
+## Scaffold a Glue job repo
+
+Inside an existing Glue job repository, generate the Claude Code / MCP config
+(idempotent — only creates what's missing, never overwrites):
+
+```bash
+data-platform init
+```
+
+This writes `CLAUDE.md`, `.mcp.json` and `.claude/{agents,skills}/...`. A full
+worked example lives in [`examples/glue-job-repo`](examples/glue-job-repo).
+
 ## Use with Claude Code
 
 Add to your MCP config (`~/.claude/mcp.json` or project `.mcp.json`):

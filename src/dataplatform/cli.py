@@ -1,0 +1,96 @@
+"""``data-platform`` developer CLI.
+
+Currently a single command, ``init``, that scaffolds the Claude Code / MCP
+configuration into a Glue job repository. It is deliberately *not* an MCP tool:
+the MCP server talks to AWS and must stay thin; writing local project files is a
+one-off developer bootstrap that belongs in a plain CLI (like ``git init`` or
+``terraform init``), available the moment the package is installed — before the
+repo has any Claude config to expose a command from.
+
+``init`` is idempotent and never overwrites: it only creates files that are
+missing, so it is safe to re-run to pick up new templates.
+"""
+
+from __future__ import annotations
+
+import argparse
+import sys
+from importlib import resources
+from importlib.resources.abc import Traversable
+from pathlib import Path
+
+# (template path within the package, destination path in the target repo)
+_FILES: tuple[tuple[str, str], ...] = (
+    ("CLAUDE.md", "CLAUDE.md"),
+    ("mcp.json", ".mcp.json"),
+    ("dot_claude/agents/job-validator.md", ".claude/agents/job-validator.md"),
+    ("dot_claude/skills/validar-job/SKILL.md", ".claude/skills/validar-job/SKILL.md"),
+)
+
+
+def _template_root() -> Traversable:
+    return resources.files("dataplatform") / "templates"
+
+
+def _read_template(rel: str) -> str:
+    node = _template_root()
+    for part in rel.split("/"):
+        node = node / part
+    return node.read_text(encoding="utf-8")
+
+
+def init(target: Path, force: bool = False) -> int:
+    root = _template_root()
+    created: list[str] = []
+    skipped: list[str] = []
+
+    for src_rel, dest_rel in _FILES:
+        dest = target / dest_rel
+        if dest.exists() and not force:
+            skipped.append(dest_rel)
+            continue
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        dest.write_text(_read_template(src_rel), encoding="utf-8")
+        created.append(dest_rel)
+
+    for path in created:
+        print(f"  criado   {path}")
+    for path in skipped:
+        print(f"  mantido  {path} (já existe; use --force para sobrescrever)")
+
+    if not created:
+        print("\nNada a criar — o repo já está configurado.")
+    else:
+        print(
+            "\nPronto. Agora exporte AWS_PROFILE e DATAPLATFORM_SANDBOX_ACCOUNTS "
+            "e abra o Claude Code neste repo."
+        )
+    _ = root  # keep the resource handle alive for the loop above
+    return 0
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(prog="data-platform")
+    sub = parser.add_subparsers(dest="command", required=True)
+
+    p_init = sub.add_parser(
+        "init", help="Cria a config do Claude Code / MCP neste repo (se faltar)."
+    )
+    p_init.add_argument(
+        "path", nargs="?", default=".", help="Diretório do repo (padrão: atual)."
+    )
+    p_init.add_argument(
+        "--force", action="store_true", help="Sobrescreve arquivos existentes."
+    )
+    return parser
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = build_parser().parse_args(argv)
+    if args.command == "init":
+        return init(Path(args.path).resolve(), force=args.force)
+    return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

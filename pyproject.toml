@@ -38,12 +38,16 @@ dev = [
 
 [project.scripts]
 data-platform-mcp = "dataplatform.mcp.server:main"
+data-platform = "dataplatform.cli:main"
 
 [project.urls]
 Repository = "https://github.com/rc301/data-platform-mcp"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/dataplatform"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"src/dataplatform/templates" = "dataplatform/templates"
 
 [tool.ruff]
 line-length = 100

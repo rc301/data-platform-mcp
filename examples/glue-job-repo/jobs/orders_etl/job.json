@@ -1,0 +1,19 @@
+{
+  "Name": "orders-etl",
+  "Description": "Normaliza e carrega pedidos.",
+  "Role": "arn:aws:iam::<ACCOUNT_ID>:role/<GLUE_ROLE>",
+  "GlueVersion": "4.0",
+  "WorkerType": "G.1X",
+  "NumberOfWorkers": 2,
+  "Timeout": 60,
+  "Command": {
+    "Name": "glueetl",
+    "PythonVersion": "3",
+    "ScriptLocation": "s3://<SCRIPT_BUCKET>/orders_etl/script.py"
+  },
+  "DefaultArguments": {
+    "--job-language": "python",
+    "--source_path": "s3://<DATA_BUCKET>/raw/orders/",
+    "--target_path": "s3://<DATA_BUCKET>/curated/orders/"
+  }
+}
