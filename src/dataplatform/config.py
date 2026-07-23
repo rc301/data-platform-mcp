@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass
+from typing import Any
 
 import boto3
 from botocore.exceptions import ClientError as AwsClientError
@@ -53,8 +54,11 @@ class Session:
     profile: str | None
     region: str | None
 
-    def client(self, service: str):
-        return self.boto.client(service)
+    def client(self, service: str) -> Any:
+        # boto3-stubs types client() with per-service Literal overloads; a runtime
+        # str has no matching overload, so we ignore it and return Any (the whole
+        # codebase already treats AWS responses as Any).
+        return self.boto.client(service)  # type: ignore[call-overload]
 
 
 def sandbox_account_ids() -> frozenset[str]:

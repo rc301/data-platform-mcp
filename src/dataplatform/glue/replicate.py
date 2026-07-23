@@ -66,8 +66,8 @@ def replicate_to_sandbox(
     }
 
 
-def _names(glue) -> list[dict[str, str]]:
-    out = []
+def _names(glue: Any) -> list[dict[str, str]]:
+    out: list[dict[str, str]] = []
     for page in glue.get_paginator("get_jobs").paginate():
         out.extend({"name": j["Name"]} for j in page["Jobs"])
     return out

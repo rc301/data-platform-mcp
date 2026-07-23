@@ -76,8 +76,7 @@ def _discover_log_groups(logs: Any, command_name: str) -> list[str]:
         groups = [*error_groups, *all_logs_groups, *_DEFAULT_ERROR_GROUPS]
     if command_name == "pythonshell":
         groups.append("/aws-glue/python-jobs/error")
-    seen: set[str] = set()
-    return [g for g in groups if not (g in seen or seen.add(g))]
+    return list(dict.fromkeys(groups))  # dedup, preserva a ordem
 
 
 def error_excerpt(
