@@ -19,6 +19,7 @@ MCP. Escolha o comando pela intenção do usuário.
 |---|---|---|
 | Validar uma alteração antes do PR | **`validar-job`** (`/validar-job`) | inspecionar → replicar na sandbox → rodar e validar |
 | Entender por que um run falhou | **`analyze-job-run`** (`/analyze-job-run`) | resumo do run → excerto de erro → schema/partição da origem |
+| Revisar uma mudança antes de subir p/ produção | **`code-review`** (`/code-review`) | diff → contraste com produção/histórico → rubrica de risco |
 | Rodar os testes unitários | **`testes-unitarios`** (`/testes-unitarios`) | suíte de testes puros do repo |
 
 Novos comandos entram como skill + slash command sobre as **mesmas** tools — não

@@ -41,6 +41,15 @@ _FILES: tuple[tuple[str, str], ...] = (
         ".claude/skills/testes-unitarios/SKILL.md",
     ),
     ("dot_claude/commands/testes-unitarios.md", ".claude/commands/testes-unitarios.md"),
+    (
+        "dot_claude/skills/code-review/SKILL.md",
+        ".claude/skills/code-review/SKILL.md",
+    ),
+    (
+        "dot_claude/skills/code-review/reference/rubric.md",
+        ".claude/skills/code-review/reference/rubric.md",
+    ),
+    ("dot_claude/commands/code-review.md", ".claude/commands/code-review.md"),
 )
 
 # Static description of what this toolkit ("sdk") exposes, for `data-platform
@@ -60,6 +69,8 @@ _SCAFFOLDED_ASSETS: tuple[tuple[str, str, str], ...] = (
     ("command", "/analyze-job-run <job> <run>", "Dispara o diagnóstico de falha."),
     ("skill", "testes-unitarios", "Casca: roda a suíte de testes (troque pelo padrão da empresa)."),
     ("command", "/testes-unitarios [path]", "Roda os testes unitários do repo."),
+    ("skill", "code-review", "Parecer de risco de um job antes de subir p/ produção."),
+    ("command", "/code-review [job|base]", "Revisa a mudança de um job pré-produção."),
 )
 
 

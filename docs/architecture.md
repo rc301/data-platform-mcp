@@ -26,7 +26,7 @@ acionam uma skill que compõe tools.
 Mostra que os primitivos servem a vários comandos — inclusive os que ainda não
 foram implementados (marcados _planejado_):
 
-| Tool | replicar/validar | analyze-job-run | code-review _(plan.)_ | gerar-docs _(plan.)_ | migrar-template _(plan.)_ |
+| Tool | replicar/validar | analyze-job-run | code-review | gerar-docs _(plan.)_ | migrar-template _(plan.)_ |
 |---|:-:|:-:|:-:|:-:|:-:|
 | `get_server_info` | ✔ | ✔ | ✔ | ✔ | ✔ |
 | `list_glue_jobs` | ✔ | ✔ | ✔ | ✔ | ✔ |
