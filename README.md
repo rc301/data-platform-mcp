@@ -62,8 +62,16 @@ Inside an existing Glue job repository, generate the Claude Code / MCP config
 data-platform init
 ```
 
-This writes `CLAUDE.md`, `.mcp.json` and `.claude/{agents,skills}/...`. A full
-worked example lives in [`examples/glue-job-repo`](examples/glue-job-repo).
+This writes `CLAUDE.md`, `.mcp.json` and `.claude/{agents,skills,commands}/...`.
+A full worked example lives in
+[`examples/glue-job-repo`](examples/glue-job-repo).
+
+Discover everything the toolkit exposes — CLI commands, live MCP tools, and the
+scaffolded skill/agent/slash-command:
+
+```bash
+data-platform list
+```
 
 ## Use with Claude Code
 

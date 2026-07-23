@@ -25,6 +25,21 @@ _FILES: tuple[tuple[str, str], ...] = (
     ("mcp.json", ".mcp.json"),
     ("dot_claude/agents/job-validator.md", ".claude/agents/job-validator.md"),
     ("dot_claude/skills/validar-job/SKILL.md", ".claude/skills/validar-job/SKILL.md"),
+    ("dot_claude/commands/validar-job.md", ".claude/commands/validar-job.md"),
+)
+
+# Static description of what this toolkit ("sdk") exposes, for `data-platform
+# list`. CLI commands and scaffolded assets are declared here; MCP tools are
+# introspected live from the server so the listing never drifts from reality.
+_CLI_COMMANDS: tuple[tuple[str, str], ...] = (
+    ("init", "Cria a config do Claude Code / MCP neste repo (idempotente)."),
+    ("list", "Lista tudo que este toolkit expõe (comandos, tools, assets)."),
+)
+
+_SCAFFOLDED_ASSETS: tuple[tuple[str, str, str], ...] = (
+    ("skill", "validar-job", "Playbook do fluxo inspecionar→replicar→validar."),
+    ("agent", "job-validator", "Subagente que valida um job de ponta a ponta."),
+    ("command", "/validar-job <job>", "Dispara o fluxo de validação manualmente."),
 )
 
 
@@ -69,6 +84,49 @@ def init(target: Path, force: bool = False) -> int:
     return 0
 
 
+def _mcp_tools() -> list[tuple[str, str]]:
+    """Introspect the MCP server for its tool names + one-line summaries.
+
+    Returns an empty list (with a hint printed by the caller) when the ``mcp``
+    extra isn't installed, so the base install still runs ``list`` cleanly.
+    """
+    try:
+        import asyncio
+
+        from dataplatform.mcp.server import mcp
+    except ImportError:
+        return []
+
+    async def _collect() -> list[tuple[str, str]]:
+        tools = await mcp.get_tools()
+        out: list[tuple[str, str]] = []
+        for name, tool in sorted(tools.items()):
+            summary = (getattr(tool, "description", "") or "").strip().splitlines()
+            out.append((name, summary[0] if summary else ""))
+        return out
+
+    return asyncio.run(_collect())
+
+
+def list_all() -> int:
+    print("data-platform — comandos de CLI:\n")
+    for name, desc in _CLI_COMMANDS:
+        print(f"  data-platform {name:6}  {desc}")
+
+    print("\nTools do MCP (server 'data-platform'):\n")
+    tools = _mcp_tools()
+    if tools:
+        for name, desc in tools:
+            print(f"  {name:26} {desc}")
+    else:
+        print("  (instale o extra [mcp] para listar as tools: pip install '.[mcp]')")
+
+    print("\nAssets criados por 'data-platform init' (usados no Claude Code):\n")
+    for kind, name, desc in _SCAFFOLDED_ASSETS:
+        print(f"  {kind:8} {name:20} {desc}")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="data-platform")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -82,6 +140,8 @@ def build_parser() -> argparse.ArgumentParser:
     p_init.add_argument(
         "--force", action="store_true", help="Sobrescreve arquivos existentes."
     )
+
+    sub.add_parser("list", help="Lista comandos de CLI, tools do MCP e assets do repo.")
     return parser
 
 
@@ -89,6 +149,8 @@ def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     if args.command == "init":
         return init(Path(args.path).resolve(), force=args.force)
+    if args.command == "list":
+        return list_all()
     return 1
 
 

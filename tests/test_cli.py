@@ -9,6 +9,16 @@ def test_init_creates_files(tmp_path: Path):
     assert (tmp_path / ".mcp.json").exists()
     assert (tmp_path / ".claude/agents/job-validator.md").exists()
     assert (tmp_path / ".claude/skills/validar-job/SKILL.md").exists()
+    assert (tmp_path / ".claude/commands/validar-job.md").exists()
+
+
+def test_list_runs_without_mcp_extra(capsys):
+    from dataplatform.cli import list_all
+
+    assert list_all() == 0
+    out = capsys.readouterr().out
+    assert "data-platform init" in out
+    assert "validar-job" in out
 
 
 def test_init_is_idempotent_and_preserves_edits(tmp_path: Path):
