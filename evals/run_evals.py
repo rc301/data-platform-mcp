@@ -30,6 +30,9 @@ def _fake_session(run_id: str, log_lines: list[str]) -> SimpleNamespace:
     """A session whose logs client replays the recorded stream."""
 
     class _Logs:
+        def describe_log_groups(self, logGroupNamePrefix, limit, **kw):
+            return {"logGroups": [{"logGroupName": "/aws-glue/jobs/error"}]}
+
         def describe_log_streams(self, logGroupName, logStreamNamePrefix):
             return {"logStreams": [{"logStreamName": run_id}]}
 

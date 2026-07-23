@@ -8,21 +8,27 @@ keeps large logs out of the agent's context; the model interprets the excerpt.
 
 from __future__ import annotations
 
+import os
 from typing import Any
 
 from dataplatform.config import AwsClientError, Session
 
-# Where the error logs live depends on whether the job uses continuous logging.
-# Continuous logging (the current Glue default) writes to /aws-glue/jobs/logs-v2;
-# older jobs write to the legacy per-type error groups. We try logs-v2 first and
-# fall back to the legacy group, so both worlds work without configuration.
-_CONTINUOUS_LOG_GROUP = "/aws-glue/jobs/logs-v2"
-_LEGACY_ERROR_LOG_GROUP = {
-    "glueetl": "/aws-glue/jobs/error",
-    "gluestreaming": "/aws-glue/jobs/error",
-    "pythonshell": "/aws-glue/python-jobs/error",
-}
-_DEFAULT_LEGACY_ERROR_GROUP = "/aws-glue/jobs/error"
+# The /aws-glue/jobs root is stable, but group names below it vary per account:
+#  * Error Logs live at a security-config-nested path ending in `/error`
+#    (e.g. /aws-glue/jobs/<sec-config>/<domain>/<role>/error) — this is stderr,
+#    where the traceback lands.
+#  * All Logs (continuous) is a flat name starting with `logs-v2`
+#    (e.g. /aws-glue/jobs/logs-v2-<sec-config>).
+# So we DISCOVER groups under the root and classify by name, best-first: `/error`
+# groups, then `logs-v2*` groups. An env var can override with an explicit list.
+_LOG_GROUP_ROOT = "/aws-glue/jobs"
+_LOG_GROUPS_ENV = "DATAPLATFORM_GLUE_LOG_GROUPS"  # explicit, comma-separated, best-first
+# Fallback for non-nested accounts, appended after discovery.
+_DEFAULT_ERROR_GROUPS = ("/aws-glue/jobs/error", "/aws-glue/jobs/logs-v2")
+
+
+def _leaf(name: str) -> str:
+    return name.rsplit("/", 1)[-1]
 
 # Markers that usually bracket the real cause. Order-independent; matched as
 # substrings against each event line.
@@ -30,18 +36,48 @@ _ERROR_MARKERS = ("Traceback", "Caused by", "Exception", "ERROR", "Error")
 
 _CONTEXT_BEFORE = 15
 
-# In logs-v2 each worker gets its own stream `<run_id>_g-<worker_hash>` with no
-# driver/executor label, so a single stream is a guess. We scan up to this many
-# (newest first) and return the first that actually carries an error marker.
+# Within a group the driver stream is exactly `<run_id>` and executors are
+# `<run_id>_g-<worker_hash>` (plus a noisy `<run_id>-progress-bar`). One stream is
+# a guess, so we scan up to this many, best-first, until one carries an error.
 _MAX_STREAMS_SCANNED = 5
 
 
-def _candidate_log_groups(command_name: str) -> list[str]:
-    """Log groups to search, in order: continuous logging then the legacy group."""
-    legacy = _LEGACY_ERROR_LOG_GROUP.get(command_name, _DEFAULT_LEGACY_ERROR_GROUP)
-    ordered = [_CONTINUOUS_LOG_GROUP, legacy]
+def _list_log_group_names(logs: Any, prefix: str) -> list[str]:
+    names: list[str] = []
+    kwargs: dict[str, Any] = {"logGroupNamePrefix": prefix, "limit": 50}
+    while True:
+        resp = logs.describe_log_groups(**kwargs)
+        names.extend(g["logGroupName"] for g in resp.get("logGroups", []))
+        token = resp.get("nextToken")
+        if not token:
+            return names
+        kwargs["nextToken"] = token
+
+
+def _discover_log_groups(logs: Any, command_name: str) -> list[str]:
+    """Error-bearing log groups to search, best-first.
+
+    Default: list groups under /aws-glue/jobs and keep the error-bearing ones —
+    the ``/error`` groups (stderr/traceback) first, then the ``logs-v2*`` All-Logs
+    groups. This handles the per-account nesting automatically and needs the
+    ``logs:DescribeLogGroups`` permission. DATAPLATFORM_GLUE_LOG_GROUPS overrides
+    with an explicit comma-separated list (skips discovery and that permission).
+    """
+    override = os.environ.get(_LOG_GROUPS_ENV)
+    if override:
+        groups = [g.strip() for g in override.split(",") if g.strip()]
+    else:
+        try:
+            names = _list_log_group_names(logs, _LOG_GROUP_ROOT)
+        except AwsClientError:
+            names = []
+        error_groups = sorted(n for n in names if _leaf(n) == "error")
+        all_logs_groups = sorted(n for n in names if _leaf(n).startswith("logs-v2"))
+        groups = [*error_groups, *all_logs_groups, *_DEFAULT_ERROR_GROUPS]
+    if command_name == "pythonshell":
+        groups.append("/aws-glue/python-jobs/error")
     seen: set[str] = set()
-    return [g for g in ordered if not (g in seen or seen.add(g))]
+    return [g for g in groups if not (g in seen or seen.add(g))]
 
 
 def error_excerpt(
@@ -64,7 +100,7 @@ def error_excerpt(
     fallback: dict[str, Any] | None = None
     last_note: str | None = None
 
-    for log_group in _candidate_log_groups(command_name):
+    for log_group in _discover_log_groups(logs, command_name):
         tried.append(log_group)
         try:
             streams = logs.describe_log_streams(
@@ -151,18 +187,20 @@ def _excerpt_from_streams(
 
 
 def _ordered_streams(streams: list[dict[str, Any]], run_id: str) -> list[str]:
-    """Worker stream names best-first for finding the fatal error: exact ``run_id``
-    (legacy driver / python shell), then any ``driver``-labelled stream, then
-    newest by last event. Company logs-v2 streams (``<run_id>_g-<worker_hash>``)
-    carry no label, so they fall to newest-first and the marker scan in
-    ``_excerpt_from_streams`` locates the traceback.
+    """Worker stream names best-first for finding the fatal error.
+
+    The driver stream is exactly ``run_id`` and carries the traceback, so it wins;
+    then any ``driver``-labelled stream; then newest by last event (executors are
+    ``<run_id>_g-<worker_hash>`` with no label). The ``<run_id>-progress-bar``
+    stream is pure noise and is dropped (unless it's all we have).
     """
+    usable = [s for s in streams if "progress-bar" not in s["logStreamName"]] or streams
 
     def key(s: dict[str, Any]) -> tuple[bool, bool, float]:
         name = s["logStreamName"]
         return (name != run_id, "driver" not in name, -float(s.get("lastEventTimestamp", 0)))
 
-    return [s["logStreamName"] for s in sorted(streams, key=key)]
+    return [s["logStreamName"] for s in sorted(usable, key=key)]
 
 
 def _extract(lines: list[str], max_lines: int) -> tuple[str, bool]:

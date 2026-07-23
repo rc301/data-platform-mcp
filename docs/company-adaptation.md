@@ -42,13 +42,16 @@ região, exponha um parâmetro `region` nas tools de tabela (`inspect_table` /
 `check_partitions`) e propague até `resolve_session`.
 
 ### Item 3 — log group e naming de stream ✅
-`glue/logs.py`. **Implementado.** `error_excerpt` tenta o grupo de continuous
-logging (`/aws-glue/jobs/logs-v2`) e cai para o legado (`/aws-glue/jobs/error`);
-dentro do grupo, **varre os streams por worker** (`<run_id>_g-<worker_hash>`, sem
-rótulo de driver na empresa) e devolve o primeiro que contém o marcador de erro,
-preferindo o grupo cujo stream realmente tem o traceback. Cobre os dois mundos
-sem configuração. **A confirmar em produção:** que o marcador de erro cai dentro
-das `_MAX_STREAMS_SCANNED` streams mais recentes em runs com muitos executores.
+`glue/logs.py`. **Implementado.** Como o caminho do log group **varia por conta**,
+`error_excerpt` **descobre** os grupos: lista sob `/aws-glue/jobs` e classifica —
+Error Logs (`.../error`, o traceback) primeiro, depois All Logs (`logs-v2-<sec>`).
+Dentro do grupo, **varre os streams**: o driver é `<run_id>` (preferido), os
+executores `<run_id>_g-<worker_hash>`, e o `<run_id>-progress-bar` é descartado;
+devolve o primeiro stream com marcador de erro, preferindo o grupo que realmente
+tem o traceback. Descoberta exige `logs:DescribeLogGroups`; para pular, use
+`DATAPLATFORM_GLUE_LOG_GROUPS` ([configuration.md](configuration.md)).
+**A confirmar em produção:** que o marcador cai nas `_MAX_STREAMS_SCANNED` streams
+mais recentes em runs com muitos executores.
 
 ### Item 4 — campos de job incompletos
 `glue/jobs.py`, `_PORTABLE_FIELDS`. Jobs reais costumam usar

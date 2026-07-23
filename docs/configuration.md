@@ -11,11 +11,28 @@ profiles AWS. Nada de segredo em arquivo versionado. A implementação está em
 | `AWS_PROFILE` | sim (na prática) | Named profile do desenvolvedor para a conta do job. Cadeia padrão AWS. |
 | `DATAPLATFORM_SANDBOX_ACCOUNTS` | sim para escrever | Lista, separada por vírgula, das contas onde escrita é permitida. Vazio ⇒ toda escrita recusada (fail-closed). |
 | `AWS_REGION` / `AWS_DEFAULT_REGION` | não | Região, lida nativamente pelo boto3. Se ausente, cai para o fallback. |
+| `DATAPLATFORM_GLUE_LOG_GROUPS` | não | Lista explícita de log groups (separada por vírgula, melhor primeiro) que **pula a descoberta** e dispensa `logs:DescribeLogGroups`. |
 
 ```bash
 export AWS_PROFILE=meu-profile-dev
 export DATAPLATFORM_SANDBOX_ACCOUNTS=111122223333,444455556666
 ```
+
+## Descoberta de log group do Glue
+
+Os grupos de log do Glue **variam por conta**: os **Error Logs** ficam num caminho
+aninhado por security configuration terminando em `/error`
+(`/aws-glue/jobs/<sec-config>/<domínio>/<role>/error`), e os **All Logs**
+(contínuo) num nome achatado começando com `logs-v2`
+(`/aws-glue/jobs/logs-v2-<sec-config>`). Por isso o `analyze-job-run` **descobre**
+os grupos: lista sob `/aws-glue/jobs` e classifica — os `/error` primeiro (stderr,
+onde cai o traceback), depois os `logs-v2*`. Isso exige a permissão IAM
+**`logs:DescribeLogGroups`** no profile do dev.
+
+Se seus grupos forem fixos, `DATAPLATFORM_GLUE_LOG_GROUPS` os passa explicitamente
+e pula a descoberta (dispensando `DescribeLogGroups`). Detalhe do stream (driver =
+`<run_id>`, executores `<run_id>_g-<worker>`, `progress-bar` descartado) em
+[company-adaptation.md](company-adaptation.md).
 
 ## Modelo de autenticação: named profiles por conta
 
