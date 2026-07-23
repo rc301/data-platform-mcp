@@ -40,9 +40,21 @@ mapa de reuso em `docs/architecture.md` (no repo do toolkit).
 
 O servidor MCP **`data-platform`** (configurado em `.mcp.json`) expõe tools
 somente-leitura para inspecionar e diagnosticar jobs/runs e inspecionar tabelas
-de origem. Prefira essas tools a chamar `aws` na mão.
+de origem. Essas tools são o **único** caminho para a AWS — nunca chame `aws` na
+mão (ver o disclaimer nas regras de segurança abaixo).
 
 ## Regras de segurança — inegociáveis
+
+> **Não execute comandos diretamente na AWS.** Toda interação com a AWS passa
+> **exclusivamente pelas Tools do toolkit** (servidor MCP `data-platform`). É
+> proibido usar o `aws` CLI, `boto3`, SDKs, `curl` em endpoints AWS ou qualquer
+> chamada direta — inclusive para **leitura** e inclusive "só para conferir".
+>
+> Se você precisar de uma operação na AWS que **nenhuma Tool do toolkit cobre**,
+> **não a execute e não a contorne**. Avise o usuário, em texto, de que você
+> **não está autorizado** a fazer essa operação, diga qual operação seria, e
+> peça que ele a realize (ou que ela seja adicionada como Tool). Depois pare e
+> aguarde — não tente um caminho alternativo.
 
 - **MCP é somente-leitura.** Nenhuma tool escreve na AWS. Não contorne isso com
   chamadas `aws` diretas para alterar jobs.
