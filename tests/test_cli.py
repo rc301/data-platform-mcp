@@ -9,6 +9,7 @@ def test_init_creates_files(tmp_path: Path):
     assert (tmp_path / ".mcp.json").exists()
     assert (tmp_path / ".claude/skills/analyze-job-run/SKILL.md").exists()
     assert (tmp_path / ".claude/skills/analyze-job-run/reference/glue-errors.md").exists()
+    assert (tmp_path / ".claude/skills/analyze-job-run/reference/company-errors.md").exists()
     assert (tmp_path / ".claude/agents/job-diagnoser.md").exists()
     assert (tmp_path / ".claude/commands/analyze-job-run.md").exists()
     # validar-job (skill/command) and the job-validator agent were removed.

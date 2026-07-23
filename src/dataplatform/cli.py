@@ -38,6 +38,10 @@ _FILES: tuple[tuple[str, str], ...] = (
         "dot_claude/skills/analyze-job-run/reference/glue-errors.md",
         ".claude/skills/analyze-job-run/reference/glue-errors.md",
     ),
+    (
+        "dot_claude/skills/analyze-job-run/reference/company-errors.md",
+        ".claude/skills/analyze-job-run/reference/company-errors.md",
+    ),
     ("dot_claude/commands/analyze-job-run.md", ".claude/commands/analyze-job-run.md"),
     (
         "dot_claude/skills/testes-unitarios/SKILL.md",
