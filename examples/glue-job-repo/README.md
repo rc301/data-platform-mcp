@@ -11,8 +11,9 @@ real.
 ├── CLAUDE.md                       # contexto e regras carregados pelo Claude
 ├── .mcp.json                       # registra o server MCP data-platform
 ├── .claude/
-│   ├── agents/job-validator.md     # subagente que valida jobs
-│   └── skills/validar-job/SKILL.md # playbook do fluxo (conhecimento estático)
+│   ├── agents/                     # job-validator, job-diagnoser (subagentes)
+│   ├── commands/                   # /validar-job, /analyze-job-run
+│   └── skills/                     # validar-job, analyze-job-run (+ reference/)
 ├── jobs/orders_etl/
 │   ├── script.py                   # código do Glue job (transform testável)
 │   └── job.json                    # config do job (placeholders, sem segredo)

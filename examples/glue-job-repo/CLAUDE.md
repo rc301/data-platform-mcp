@@ -20,6 +20,12 @@ Ao alterar um job, o ciclo é sempre:
 Este fluxo está encapsulado na skill **`validar-job`** — use-a quando for
 validar uma alteração.
 
+Quando um run **falha em produção**, o fluxo é investigar:
+inspecionar o run → ler o excerto de erro → checar schema/partição da origem →
+diagnosticar. Encapsulado na skill **`analyze-job-run`** (e no subagente
+`job-diagnoser`). Leituras em contas de dados terceiras usam um `data_profile`
+próprio, sempre read-only.
+
 ## Ferramentas (MCP)
 
 O servidor MCP **`data-platform`** (configurado em `.mcp.json`) expõe as tools

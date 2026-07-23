@@ -145,6 +145,55 @@ def get_sandbox_run_status(job_name: str, run_id: str, sandbox_profile: str) -> 
     return glue.get_run_status(resolve_session(profile=sandbox_profile), job_name, run_id)
 
 
+@mcp.tool()
+def diagnose_job_run(job_name: str, run_id: str, profile: str | None = None) -> dict[str, Any]:
+    """Diagnose one Glue job run in a single high-signal call.
+
+    Returns a bundle: run summary (times in BRT, DPU, workers, duration), the
+    recent-run history (to tell whether the failure is new or chronic), and —
+    only if the run failed — a bounded error excerpt from CloudWatch. Start here
+    when a run fails; follow up with ``inspect_table`` / ``check_partitions``
+    only if the excerpt points at data or schema.
+
+    Runs against the job's account (``profile`` defaults to the dev's
+    ``AWS_PROFILE``).
+
+    Do NOT loop this to poll a running job — use it once the run has finished.
+    """
+    return glue.diagnose_job_run(resolve_session(profile=profile), job_name, run_id)
+
+
+@mcp.tool()
+def inspect_table(database: str, table: str, data_profile: str) -> dict[str, Any]:
+    """Inspect a source table's schema and format (read-only, data account).
+
+    Returns columns, partition keys, S3 location and whether the table is
+    Iceberg or Hive. Use to check for schema drift against the job's script, and
+    to learn the table format before checking partitions.
+
+    ``data_profile`` must resolve to the account holding the table (a third
+    account the sandbox can read). Do NOT use for the job's own account.
+    """
+    return glue.inspect_table(resolve_session(profile=data_profile), database, table)
+
+
+@mcp.tool()
+def check_partitions(
+    database: str, table: str, expression: str, data_profile: str
+) -> dict[str, Any]:
+    """Check whether catalog partitions matching ``expression`` exist.
+
+    ``expression`` is a Glue partition filter, e.g. ``dt='2026-07-01'``. Use to
+    confirm a source partition the job expected is actually present. Read-only,
+    runs in the data account via ``data_profile``.
+
+    Do NOT use on Iceberg tables — it detects them and refuses, because their
+    partitions are not in the Glue Data Catalog. Do NOT use it to read data;
+    it only checks presence.
+    """
+    return glue.check_partitions(resolve_session(profile=data_profile), database, table, expression)
+
+
 def main() -> None:
     """Entry point for the ``data-platform-mcp`` console script (stdio)."""
     mcp.run()

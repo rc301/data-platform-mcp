@@ -26,6 +26,16 @@ _FILES: tuple[tuple[str, str], ...] = (
     ("dot_claude/agents/job-validator.md", ".claude/agents/job-validator.md"),
     ("dot_claude/skills/validar-job/SKILL.md", ".claude/skills/validar-job/SKILL.md"),
     ("dot_claude/commands/validar-job.md", ".claude/commands/validar-job.md"),
+    ("dot_claude/agents/job-diagnoser.md", ".claude/agents/job-diagnoser.md"),
+    (
+        "dot_claude/skills/analyze-job-run/SKILL.md",
+        ".claude/skills/analyze-job-run/SKILL.md",
+    ),
+    (
+        "dot_claude/skills/analyze-job-run/reference/glue-errors.md",
+        ".claude/skills/analyze-job-run/reference/glue-errors.md",
+    ),
+    ("dot_claude/commands/analyze-job-run.md", ".claude/commands/analyze-job-run.md"),
 )
 
 # Static description of what this toolkit ("sdk") exposes, for `data-platform
@@ -38,8 +48,11 @@ _CLI_COMMANDS: tuple[tuple[str, str], ...] = (
 
 _SCAFFOLDED_ASSETS: tuple[tuple[str, str, str], ...] = (
     ("skill", "validar-job", "Playbook do fluxo inspecionar→replicar→validar."),
+    ("skill", "analyze-job-run", "Playbook de diagnóstico de run falhado."),
     ("agent", "job-validator", "Subagente que valida um job de ponta a ponta."),
+    ("agent", "job-diagnoser", "Subagente que investiga e diagnostica um run."),
     ("command", "/validar-job <job>", "Dispara o fluxo de validação manualmente."),
+    ("command", "/analyze-job-run <job> <run>", "Dispara o diagnóstico de falha."),
 )
 
 
@@ -98,12 +111,12 @@ def _mcp_tools() -> list[tuple[str, str]]:
         return []
 
     async def _collect() -> list[tuple[str, str]]:
-        tools = await mcp.get_tools()
+        tools = await mcp.list_tools()
         out: list[tuple[str, str]] = []
-        for name, tool in sorted(tools.items()):
+        for tool in tools:
             summary = (getattr(tool, "description", "") or "").strip().splitlines()
-            out.append((name, summary[0] if summary else ""))
-        return out
+            out.append((tool.name, summary[0] if summary else ""))
+        return sorted(out)
 
     return asyncio.run(_collect())
 

@@ -52,6 +52,15 @@ export DATAPLATFORM_SANDBOX_ACCOUNTS=111122223333,444455556666
 | `validate_sandbox_job` | read | Static validation of a replicated job |
 | `run_sandbox_job` | write (guarded) | Start a short validation run |
 | `get_sandbox_run_status` | read | Poll a validation run |
+| `diagnose_job_run` | read | One-call diagnosis of a run (summary + history + error excerpt) |
+| `inspect_table` | read (data acct) | Source table schema + Iceberg detection |
+| `check_partitions` | read (data acct) | Whether a catalog partition exists (refuses Iceberg) |
+
+The read tools split across accounts: run diagnostics use the dev's
+`AWS_PROFILE`; `inspect_table` / `check_partitions` take a `data_profile` that
+resolves to the (third) account holding the source tables. `diagnose_job_run` is
+workflow-altitude by design — it bundles what you need to start diagnosing a
+failure in a single high-signal call rather than several low-level reads.
 
 ## Scaffold a Glue job repo
 

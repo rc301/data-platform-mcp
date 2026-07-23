@@ -10,6 +10,10 @@ def test_init_creates_files(tmp_path: Path):
     assert (tmp_path / ".claude/agents/job-validator.md").exists()
     assert (tmp_path / ".claude/skills/validar-job/SKILL.md").exists()
     assert (tmp_path / ".claude/commands/validar-job.md").exists()
+    assert (tmp_path / ".claude/skills/analyze-job-run/SKILL.md").exists()
+    assert (tmp_path / ".claude/skills/analyze-job-run/reference/glue-errors.md").exists()
+    assert (tmp_path / ".claude/agents/job-diagnoser.md").exists()
+    assert (tmp_path / ".claude/commands/analyze-job-run.md").exists()
 
 
 def test_list_runs_without_mcp_extra(capsys):
