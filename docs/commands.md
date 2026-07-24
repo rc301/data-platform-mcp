@@ -10,7 +10,7 @@ está em [architecture.md](architecture.md).
 
 | Peça | O que é | Onde vive | Contexto |
 |---|---|---|---|
-| **Skill** | Playbook + conhecimento estático (rubrica, catálogo de erro) | `.claude/skills/<nome>/SKILL.md` (+ `reference/`) | Carrega no contexto atual |
+| **Skill** | Playbook + conhecimento estático (rubrica, catálogo de erro) | `.claude/skills/<nome>/SKILL.md` (+ `references/`) | Carrega no contexto atual |
 | **Command** | Gatilho manual `/x` que aciona uma skill | `.claude/commands/<nome>.md` | Roda no seu contexto |
 | **Subagente** | Execução isolada, contexto próprio, só devolve o relatório final | `.claude/agents/<nome>.md` | Contexto isolado |
 
@@ -31,7 +31,7 @@ delegar.
 ### `analyze-job-run`
 Diagnostica um run que falhou. Começa em `diagnose_job_run` (resumo + histórico +
 excerto de erro), e só aprofunda em `inspect_table`/`check_partitions` se o erro
-apontar para dados/schema. Carrega o catálogo estático `reference/glue-errors.md`.
+apontar para dados/schema. Carrega o catálogo estático `references/glue-errors.md`.
 Read-only — propõe a correção, não conserta em produção. Subagente:
 `job-diagnoser`.
 
@@ -40,7 +40,7 @@ Parecer de risco **antes** de subir para produção. Read-only: não edita, não
 replica, não roda. Delimita o diff, contrasta o `job.json` do PR com a config de
 produção (`inspect_glue_job`), checa o histórico (`list_job_runs`), valida a
 origem se o diff tocar dados, e aplica a rubrica estática
-`code-review/reference/rubric.md`. Entrega veredito (aprovar / com ressalvas /
+`code-review/references/rubric.md`. Entrega veredito (aprovar / com ressalvas /
 bloquear) + achados (severidade, arquivo:linha, correção) + checklist "antes de
 subir".
 
@@ -52,7 +52,7 @@ testes da empresa (ver [company-adaptation.md](company-adaptation.md)).
 ## Como adicionar um comando novo
 
 1. **Escreva a skill** em `.claude/skills/<nome>/SKILL.md` — estratégia + o
-   conhecimento estático (rubrica, padrão de doc) em `reference/`. A skill compõe
+   conhecimento estático (rubrica, padrão de doc) em `references/`. A skill compõe
    tools existentes.
 2. **Adicione o slash command** em `.claude/commands/<nome>.md` apontando para a
    skill (com `$ARGUMENTS`).

@@ -10,7 +10,7 @@ description: >-
 
 Você é um engenheiro de dados investigando uma falha. **Você dirige** a
 investigação — os passos abaixo são estratégia, não um roteiro fixo. Use o
-`reference/glue-errors.md` (catálogo genérico) e o `reference/company-errors.md`
+`references/glue-errors.md` (catálogo genérico) e o `references/company-errors.md`
 (erros específicos da empresa) para mapear a assinatura do erro à causa provável.
 
 ## Antes de tudo: acesso
@@ -28,8 +28,8 @@ investigação — os passos abaixo são estratégia, não um roteiro fixo. Use 
    - **Sucesso?** Reporte que rodou bem: job, run_id, data/hora BRT, duração,
      workers e DPU. Encerre.
    - **Falha?** Continue.
-4. Leia o `error_excerpt` e case com `reference/glue-errors.md` e
-   `reference/company-errors.md` (prefira o específico da empresa quando casar).
+4. Leia o `error_excerpt` e case com `references/glue-errors.md` e
+   `references/company-errors.md` (prefira o específico da empresa quando casar).
    O `recent_runs` diz se a falha é nova (regressão → procure mudança recente) ou
    crônica.
 5. **Só se** o erro apontar para dados/schema, aprofunde:

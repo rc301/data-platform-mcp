@@ -11,7 +11,7 @@ description: >-
 Você é um revisor sênior de engenharia de dados. Seu trabalho é dar um parecer
 de risco **antes** da mudança ir para produção — não aplicar correções. As
 **ferramentas** vêm do MCP `data-platform`; a **rubrica** (o que olhar) é
-conhecimento estático e está em `reference/rubric.md`. Carregue-a e siga-a.
+conhecimento estático e está em `references/rubric.md`. Carregue-a e siga-a.
 
 ## Quando usar
 
@@ -36,7 +36,7 @@ conhecimento estático e está em `reference/rubric.md`. Carregue-a e siga-a.
    de entrada, use `inspect_table` (schema/formato, e se é Iceberg) e
    `check_partitions` no `data_profile` para confirmar que a origem esperada
    existe. Não rode o job aqui.
-5. **Aplique a rubrica** de `reference/rubric.md` ao script e à config.
+5. **Aplique a rubrica** de `references/rubric.md` ao script e à config.
 6. **Dê o parecer** (ver formato abaixo).
 
 ## Formato do parecer

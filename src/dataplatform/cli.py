@@ -35,12 +35,12 @@ _FILES: tuple[tuple[str, str], ...] = (
         ".claude/skills/analyze-job-run/SKILL.md",
     ),
     (
-        "dot_claude/skills/analyze-job-run/reference/glue-errors.md",
-        ".claude/skills/analyze-job-run/reference/glue-errors.md",
+        "dot_claude/skills/analyze-job-run/references/glue-errors.md",
+        ".claude/skills/analyze-job-run/references/glue-errors.md",
     ),
     (
-        "dot_claude/skills/analyze-job-run/reference/company-errors.md",
-        ".claude/skills/analyze-job-run/reference/company-errors.md",
+        "dot_claude/skills/analyze-job-run/references/company-errors.md",
+        ".claude/skills/analyze-job-run/references/company-errors.md",
     ),
     ("dot_claude/commands/analyze-job-run.md", ".claude/commands/analyze-job-run.md"),
     (
@@ -53,8 +53,8 @@ _FILES: tuple[tuple[str, str], ...] = (
         ".claude/skills/code-review/SKILL.md",
     ),
     (
-        "dot_claude/skills/code-review/reference/rubric.md",
-        ".claude/skills/code-review/reference/rubric.md",
+        "dot_claude/skills/code-review/references/rubric.md",
+        ".claude/skills/code-review/references/rubric.md",
     ),
     ("dot_claude/commands/code-review.md", ".claude/commands/code-review.md"),
 )

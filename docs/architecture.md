@@ -47,7 +47,7 @@ doc são **conhecimento estático** → arquivos de referência da skill.
 
 1. **Escreva a skill** em `.claude/skills/<nome>/SKILL.md` — a estratégia + o
    conhecimento estático (rubrica, padrão de doc, passos de migração) em
-   `reference/`. A skill compõe as tools existentes.
+   `references/`. A skill compõe as tools existentes.
 2. **Adicione o slash command** em `.claude/commands/<nome>.md` apontando para a
    skill (com `$ARGUMENTS`).
 3. **(Opcional) um subagente** se o trabalho for barulhento e valer isolar.

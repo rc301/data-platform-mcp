@@ -19,5 +19,5 @@ Princípios:
 - **Diagnostique, não conserte.** Proponha a correção; deixe o teste com o usuário.
 
 Fluxo: confirmar acesso → `diagnose_job_run` → casar o erro com
-`reference/glue-errors.md` → aprofundar em schema/partição só se necessário →
+`references/glue-errors.md` → aprofundar em schema/partição só se necessário →
 diagnóstico resumido (o que falhou, causa provável + evidência, correção a testar).

@@ -11,7 +11,7 @@ Siga a skill `analyze-job-run`. Em resumo:
    `aws sso login` e pare.
 2. `diagnose_job_run` com o job e run_id acima.
    - Sucesso → reporte job, run_id, data/hora BRT, duração, workers e DPU.
-   - Falha → case o `error_excerpt` com `reference/glue-errors.md`; use
+   - Falha → case o `error_excerpt` com `references/glue-errors.md`; use
      `recent_runs` para ver se é regressão.
 3. Se for dado/schema, leia o script em `jobs/` para achar as tabelas origem e
    use `inspect_table` / `check_partitions` no `data_profile`.
