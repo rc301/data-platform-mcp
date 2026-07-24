@@ -18,6 +18,7 @@ composição, sem inchar a camada de tools.
 | [architecture.md](architecture.md) | As quatro camadas e o mapa de reuso tools × comandos. O "porquê" do design. |
 | [security.md](security.md) | Somente-leitura (sem caminho de escrita), credenciais e higiene de segredos. |
 | [company-adaptation.md](company-adaptation.md) | Os pontos `TODO(empresa)` a ajustar para rodar na empresa. |
+| [../simulation/README.md](../simulation/README.md) | Testar tudo localmente **sem AWS** (`python simulate.py`). |
 
 ## Leitura sugerida por papel
 

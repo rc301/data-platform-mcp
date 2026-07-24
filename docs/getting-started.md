@@ -101,6 +101,18 @@ meu-gluejob-repo/
 Um exemplo completo vive em
 [`examples/glue-job-repo`](../examples/glue-job-repo).
 
+## Testar sem AWS
+
+Não precisa de credencial para validar que tudo funciona. Da raiz do repo:
+
+```bash
+python simulate.py
+```
+
+Roda lint, tipos, testes, evals e uma simulação end-to-end de todas as tools
+contra um AWS falso. Detalhes (e como plugar o Claude Code num servidor MCP
+simulado) em [`simulation/README.md`](../simulation/README.md).
+
 ## Solução de problemas
 
 | Sintoma | Causa provável | O que fazer |

@@ -122,6 +122,20 @@ Full docs live in [`docs/`](docs/) — start at the
 - [security](docs/security.md) — the read-only guarantee and secrets hygiene
 - [company-adaptation](docs/company-adaptation.md) — the `TODO(empresa)` checklist
 
+## Test locally, without AWS
+
+Everything can be exercised offline against a fake AWS (Glue + CloudWatch) — no
+credentials, no network, no account. One command:
+
+```bash
+python simulate.py
+```
+
+It runs lint → types → tests → diagnosis evals → an end-to-end simulation of
+every tool, and exits non-zero if anything fails. You can also point Claude Code
+at a fake MCP server to run `/analyze-job-run` fully offline — see
+[`simulation/README.md`](simulation/README.md).
+
 ## Develop
 
 ```bash
